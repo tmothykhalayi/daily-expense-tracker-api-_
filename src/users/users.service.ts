@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-// ✅ Interface for User — define user structure
+
 export interface User {
   id: number;
   name: string;
@@ -18,7 +18,7 @@ export class UserService {
   private users: User[] = [];
   private idCounter = 1;
 
-  // ✅ Create user
+  //  Create user
   async createUser(user: {
     name: string;
     email: string;
@@ -39,12 +39,12 @@ export class UserService {
     return newUser;
   }
 
-  // ✅ Find all users
+  //  Find all users
   async findAllUsers(): Promise<User[]> {
     return this.users;
   }
 
-  // ✅ Find user by email
+  //  Find user by email
   async findUserByEmail(email: string): Promise<User> {
     const user = this.users.find((u) => u.email === email);
     if (!user) {
@@ -53,7 +53,7 @@ export class UserService {
     return user;
   }
 
-  // ✅ Find user by ID
+  //  Find user by ID
   async findUserById(id: number): Promise<User> {
     const user = this.users.find((u) => u.id === id);
     if (!user) {
@@ -62,7 +62,7 @@ export class UserService {
     return user;
   }
 
-  // ✅ Update user
+  //  Update user
   async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.findUserById(id);
 
@@ -75,7 +75,7 @@ export class UserService {
     return user;
   }
 
-  // ✅ Delete user
+  //  Delete user
   async deleteUser(id: number): Promise<User> {
     const index = this.users.findIndex((u) => u.id === id);
     if (index === -1) {

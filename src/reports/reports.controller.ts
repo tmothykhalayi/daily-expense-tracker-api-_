@@ -1,34 +1,41 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
+import { GetReportDto } from './dto/get-report.dto';
+import { Report } from './entities/report.entity'; // <-- Make sure this import is correct
 
 @Controller('reports')
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
+  // Create a new report
   @Post()
-  create(@Body() createReportDto: CreateReportDto) {
-    return this.reportsService.create(createReportDto);
+  async createReport(@Body() createReportDto: CreateReportDto): Promise<Report> {
+    return this.reportsService.createReport(createReportDto);
   }
-
+  
+  // Get all reports with optional filters
   @Get()
-  findAll() {
-    return this.reportsService.findAll();
+  async getReports(@Query() getReportDto: GetReportDto): Promise<Report[]> {
+    return this.reportsService.getAllReports(getReportDto);
   }
 
+  // Get a single report by ID (route param, not query)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.reportsService.findOne(+id);
+  async getReportById(@Param('id') id: number): Promise<Report> {
+    return this.reportsService.getReportById(id);
   }
 
+  // Update report partially by ID
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateReportDto: UpdateReportDto) {
+  async update(@Param('id') id: string, @Body() updateReportDto: UpdateReportDto): Promise<Report> {
     return this.reportsService.update(+id, updateReportDto);
   }
 
+  // Delete report by ID
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string): Promise<void> {
     return this.reportsService.remove(+id);
   }
 }
