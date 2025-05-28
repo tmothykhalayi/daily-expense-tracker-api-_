@@ -1,98 +1,183 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+## **Daily Expense Tracker System Overview**
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+The **Daily Expense Tracker System** is a web-based application built using **PHP** and **MySQL** to help users manage their daily, monthly, and yearly expenses. The system enables users to record their daily expenses, track expenditures, generate reports, and view insights about their spending habits. The application consists of two primary modules: **User** and  **Admin** .
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+### **Modules of the Daily Expense Tracker System**
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+1. **User Module**
+2. **Admin Module**
 
-## Project setup
+---
 
-```bash
-$ pnpm install
-```
+### **User Module**
 
-## Compile and run the project
+The **User Module** allows users to track their expenses and manage their personal profiles. The system provides detailed insights into spending patterns and generates reports on a daily, monthly, and yearly basis.
 
-```bash
-# development
-$ pnpm run start
+#### **Features:**
 
-# watch mode
-$ pnpm run start:dev
+1. **Dashboard** :
 
-# production mode
-$ pnpm run start:prod
-```
+* **Overview** : Users can view a summary of their daily, monthly, and yearly expenses.
+* **Expense Overview** : A graph or chart showing expenses for the selected time period.
 
-## Run tests
+1. **Expenses** :
 
-```bash
-# unit tests
-$ pnpm run test
+* **Add Expenses** : Users can add new expenses by providing details such as amount, category (e.g., food, transportation), date, and description.
+* **Delete Expenses** : Users can delete expenses that they no longer want to track.
 
-# e2e tests
-$ pnpm run test:e2e
+1. **Expense Report** :
 
-# test coverage
-$ pnpm run test:cov
-```
+* **Daily Report** : View expenses recorded for a particular day.
+* **Monthly Report** : View expenses recorded in a particular month.
+* **Yearly Report** : View all expenses over the course of a year.
+* **Category-wise Report** : View expenses by category, helping users analyze where they are spending the most.
 
-## Deployment
+1. **Profile** :
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+* **Update Profile** : Users can update personal details such as name, email, contact information, etc.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+1. **Change Password** :
 
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
+* Users can change their password for security purposes.
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+1. **Logout** :
 
-## Resources
+* Users can log out of the application.
 
-Check out a few resources that may come in handy when working with NestJS:
+1. **Password Recovery** :
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+* If users forget their password, they can recover it through email or security questions.
 
-## Support
+---
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### **Admin Module**
 
-## Stay in touch
+The **Admin Module** allows administrators to manage users, categories, and generate reports. Admins have broader access to the system and can manage all users and their data.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+#### **Features:**
 
-## License
+1. **Dashboard** :
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+* **Overview** : Admin can see a summary of all users' daily, monthly, and yearly expenses.
+* **Category Overview** : Admin can view the categories created for expenses and see which categories are being used the most.
+
+1. **Categories** :
+
+* **Manage Categories** : Admin can create new expense categories (e.g., Food, Travel, Entertainment), edit existing ones, or delete unused categories.
+
+1. **Users** :
+
+* **Manage Users** : Admin can view, edit, or delete users. Admin can also view the user's expenses and profile.
+* **View User Expenses** : Admin can see the expenses for each user, along with the dates and categories.
+
+1. **Reports** :
+
+* **Generate User-wise Report** : Admin can generate detailed reports for individual users, showing their expenses for different time periods.
+* **Date Range Reports** : Admin can generate reports between specific dates, allowing for custom date ranges to be selected.
+
+1. **Profile** :
+
+* **Update Profile** : Admin can update personal details such as name, email, contact details, etc.
+
+1. **Change Password** :
+
+* Admin can change their password for security purposes.
+
+1. **Logout** :
+
+* Admin can log out of the application.
+
+1. **Password Recovery** :
+
+* Admin can recover the password through a secure email or authentication method.
+
+---
+
+### **Database Schema Design**
+
+Here is the database schema for the  **Daily Expense Tracker System (DETS)** :
+
+#### **1. Users Table (`users`)**
+
+| Column Name    | Data Type                         | Description                      |
+| -------------- | --------------------------------- | -------------------------------- |
+| `user_id`    | INT (Primary Key, Auto Increment) | Unique identifier for each user  |
+| `username`   | VARCHAR(255)                      | Username for user login          |
+| `email`      | VARCHAR(255)                      | User's email address             |
+| `password`   | VARCHAR(255)                      | Encrypted password               |
+| `role`       | ENUM('Admin', 'User')             | Role of the user (Admin or User) |
+| `created_at` | TIMESTAMP                         | Account creation timestamp       |
+| `updated_at` | TIMESTAMP                         | Last update timestamp            |
+
+#### **2. Expenses Table (`expenses`)**
+
+| Column Name     | Data Type                         | Description                                  |
+| --------------- | --------------------------------- | -------------------------------------------- |
+| `expense_id`  | INT (Primary Key, Auto Increment) | Unique identifier for each expense           |
+| `user_id`     | INT (Foreign Key)                 | Reference to the `users`table              |
+| `amount`      | DECIMAL(10, 2)                    | The expense amount                           |
+| `category`    | VARCHAR(100)                      | Category of the expense (e.g., Food, Travel) |
+| `date`        | DATE                              | Date of the expense                          |
+| `description` | TEXT                              | Description of the expense                   |
+| `created_at`  | TIMESTAMP                         | Timestamp when the expense was added         |
+| `updated_at`  | TIMESTAMP                         | Timestamp when the expense was last updated  |
+
+#### **3. Categories Table (`categories`)**
+
+| Column Name       | Data Type                         | Description                               |
+| ----------------- | --------------------------------- | ----------------------------------------- |
+| `category_id`   | INT (Primary Key, Auto Increment) | Unique identifier for each category       |
+| `category_name` | VARCHAR(100)                      | Name of the category (e.g., Food, Travel) |
+| `created_at`    | TIMESTAMP                         | Timestamp when the category was created   |
+
+#### **4. Reports Table (`reports`)** *(Optional, if needed for admin reporting)*
+
+| Column Name      | Data Type                         | Description                             |
+| ---------------- | --------------------------------- | --------------------------------------- |
+| `report_id`    | INT (Primary Key, Auto Increment) | Unique identifier for each report       |
+| `user_id`      | INT (Foreign Key)                 | Reference to the `users`table         |
+| `start_date`   | DATE                              | Start date for the report period        |
+| `end_date`     | DATE                              | End date for the report period          |
+| `generated_at` | TIMESTAMP                         | Timestamp when the report was generated |
+
+---
+
+### **Technologies and Tools**
+
+1. **Frontend** :
+
+* **HTML** ,  **CSS** , **JavaScript** (Basic frontend)
+* **Bootstrap** for responsive design
+* **Chart.js** or **Google Charts** for visualizing expense data
+
+1. **Backend** :
+
+* **PHP** for server-side processing
+* **MySQL** for relational database management
+
+1. **Authentication** :
+
+* Use **PHP sessions** for user authentication and session management
+* **Password hashing** using **bcrypt**
+
+1. **Payment Integration** (Optional):
+   * Integrate payment gateways (PayPal, Stripe) for premium user features or subscription plans.
+2. **Email Integration** :
+
+* Use **PHP mailer** or **SendGrid** for password recovery and user notifications.
+
+---
+
+### **Security Considerations**
+
+1. **Password Security** : Use secure password hashing and salting techniques such as bcrypt.
+2. **SQL Injection Prevention** : Use **prepared statements** and **parameterized queries** in SQL queries to avoid SQL injection vulnerabilities.
+3. **Input Validation** : Sanitize and validate all user inputs to prevent cross-site scripting (XSS) and other malicious attacks.
+4. **Access Control** : Implement role-based access control (RBAC) to ensure users and admins can only access their authorized features.
+5. **Session Management** : Implement secure session management, including session timeout and token-based authentication if needed.
+
+---
+
+This detailed design covers the essential features of the  **Daily Expense Tracker System (DETS)** , along with a secure database schema and technology stack. If you need more specific implementation details or additional features, feel free to ask!
