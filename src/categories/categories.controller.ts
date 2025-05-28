@@ -1,34 +1,54 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { CategoriesService } from './categories.service';
+import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common';
+import { CategoriesService ,Category } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
+
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) {}
+    constructor(private readonly categoryService: CategoriesService) {}
 
+    //creating a new categories
   @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoriesService.create(createCategoryDto);
-  }
+    async createCategory(@Body() createCategoryDto: CreateCategoryDto): Promise<Category> {
+        return this.categoryService.createCategory(createCategoryDto);
+    }
 
-  @Get()
-  findAll() {
-    return this.categoriesService.findAll();
-  }
+//finding all categories
+   @Get()
+    async findAllCategories(): Promise<Category[]> {
+        return this.categoryService.findAllCategories();
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(+id);
-  }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.categoriesService.update(+id, updateCategoryDto);
-  }
+    //finding a category by id
+@Get(':id')
+    async findCategoryById(@Param('id') id: number): Promise<Category | undefined> {
+        return this.categoryService.findCategoryById(id);
+    }
 
+
+//updating a category by id
+  @Put(':id')
+    async updateCategory(@Param('id') id: number, @Body() updateCategoryDto: UpdateCategoryDto): Promise<Category> {
+        return this.categoryService.updateCategory(id, updateCategoryDto);
+    }
+
+//deleting a category by id
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoriesService.remove(+id);
-  }
+    async deleteCategory(@Param('id') id: number): Promise<void> {
+        return this.categoryService.deleteCategory(id);
+    }
 }
+
+
+
+
+    
+    
+
+    
+   
+    
+
+

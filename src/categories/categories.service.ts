@@ -1,26 +1,66 @@
-import { Injectable } from '@nestjs/common';
+
+import { Injectable ,NotFoundException } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
+export interface Category {
+  id: number;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+
 @Injectable()
 export class CategoriesService {
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+    private categories: Category[] = [];
+  private idCounter = 1;
+
+  createCategory(dto: CreateCategoryDto): Category {
+    const newCategory: Category = {
+      id: this.idCounter++,
+      name: dto.name,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.categories.push(newCategory);
+    return newCategory;
   }
 
-  findAll() {
-    return `This action returns all categories`;
+  
+  // Finding all categories
+  findAllCategories(): Category[] {
+    return this.categories;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+
+    // Finding a category by id
+  findCategoryById(id: number): Category {
+    const category = this.categories.find((cat) => cat.id === id);
+    if (!category) throw new NotFoundException(`Category with id ${id} not found`);
+    return category;
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+
+  updateCategory(id: number, dto: UpdateCategoryDto): Category {
+    const category = this.findCategoryById(id);
+
+    if (dto.name) {
+      category.name = dto.name;
+    }
+
+    category.updatedAt = new Date();
+    return category;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+
+    // Deleting a category by id
+  deleteCategory(id: number): void {
+    const index = this.categories.findIndex((cat) => cat.id === id);
+    if (index === -1) throw new NotFoundException(`Category with id ${id} not found`);
+    this.categories.splice(index, 1);
   }
 }
+
+
+  
