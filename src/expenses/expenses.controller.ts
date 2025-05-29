@@ -1,34 +1,35 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ExpensesService } from './expenses.service';
+import { ExpensesService, Expense } from './expenses.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
-import { UpdateExpenseDto } from './dto/update-expense.dto';
+import { UpdateExpenseDto } from './dto/update-expense.dto'
+
 
 @Controller('expenses')
 export class ExpensesController {
   constructor(private readonly expensesService: ExpensesService) {}
-
+  //post in the expenses controller to create a new expense
   @Post()
-  create(@Body() createExpenseDto: CreateExpenseDto) {
-    return this.expensesService.create(createExpenseDto);
+  async create(@Body() body: any): Promise<Expense> {
+    return this.expensesService.createExpense(body);
   }
-
+  //used  to fetch all expenses
   @Get()
-  findAll() {
+  async findAll(): Promise<Expense[]> {
     return this.expensesService.findAll();
   }
-
+  //used to fetch by id
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<Expense> {
     return this.expensesService.findOne(+id);
   }
-
+  //used to update an expense by id
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateExpenseDto: UpdateExpenseDto) {
-    return this.expensesService.update(+id, updateExpenseDto);
+  async update(@Param('id') id: string, @Body() body: any): Promise<Expense> {
+    return this.expensesService.update(+id, body);
   }
-
+  //used to delete an expense by id
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.expensesService.remove(+id);
+  delete(@Param('id') id: string): any {
+    return this.expensesService.delete(+id);
   }
 }
