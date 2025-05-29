@@ -1,0 +1,83 @@
+# Create a new category - Food
+POST http://localhost:8000/categories
+Content-Type: application/json
+
+{
+  "name": "Food"
+}
+
+###
+
+# Create a new category - Transportation
+POST http://localhost:8000/categories
+Content-Type: application/json
+
+{
+  "name": "Transportation"
+}
+
+###
+
+# Create a new category - Entertainment
+POST http://localhost:8000/categories
+Content-Type: application/json
+
+{
+  "name": "Entertainment"
+}
+
+###
+
+# Create a new category - Utilities
+POST http://localhost:8000/categories
+Content-Type: application/json
+
+{
+  "name": "Utilities"
+}
+
+###
+
+# Create a new category - Education
+POST http://localhost:8000/categories
+Content-Type: application/json
+
+{
+  "name": "Education"
+}
+
+###
+POST http://localhost:8000/categories
+Content-Type: application/json
+
+{
+  "name": "Health"
+}
+
+###
+
+# 2. Get all categories
+GET http://localhost:8000/categories
+Accept: application/json
+
+###
+
+# 3. Get category by ID (replace 1 with your ID)
+GET http://localhost:8000/categories/1
+Accept: application/json
+
+###
+
+# 4. Update category by ID
+PUT http://localhost:8000/categories/2
+Content-Type: application/json
+
+{
+  "name": "Healthcare"
+}
+
+###
+
+# 5. Delete category by ID
+DELETE http://localhost:8000/categories/4
+

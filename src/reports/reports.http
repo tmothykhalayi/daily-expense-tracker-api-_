@@ -1,0 +1,111 @@
+### Create Report 1
+POST http://localhost:8000/reports
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "startDate": "2025-05-01",
+  "endDate": "2025-05-07"
+}
+
+### Create Report 2
+POST http://localhost:8000/reports
+Content-Type: application/json
+
+{
+  "userId": 2,
+  "startDate": "2025-06-10",
+  "endDate": "2025-06-15"
+}
+
+### Create Report 3
+POST http://localhost:8000/reports
+Content-Type: application/json
+
+{
+  "userId": 3,
+  "startDate": "2025-07-01",
+  "endDate": "2025-07-05"
+}
+
+### Create Report 4
+POST http://localhost:8000/reports
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "startDate": "2025-08-20",
+  "endDate": "2025-08-25"
+}
+
+### Get All Reports (no filter)
+GET http://localhost:8000/reports
+
+### Get All Reports by userId=1
+GET http://localhost:8000/report/s?userId=1
+
+### Get All Reports startDate=2025-05-05
+GET http://localhost:8000/reports?startDate=2025-05-05
+
+### Get All Reports userId=2 & endDate=2025-06-20
+GET http://localhost:8000/reports?userId=2&endDate=2025-06-20
+
+### Get Report by ID 1
+GET http://localhost:8000/reports/1
+
+### Get Report by ID 2
+GET http://localhost:8000/reports/2
+
+### Get Report by ID 3
+GET http://localhost:8000/reports/3
+
+### Get Report by ID 999 (not found)
+GET http://localhost:8000/reports/999
+
+### Update Report 1 - endDate only
+PATCH http://localhost:8000/reports/1
+Content-Type: application/json
+
+{
+  "endDate": "2025-05-10"
+}
+
+### Update Report 1 - startDate only
+PATCH http://localhost:8000/reports/1
+Content-Type: application/json
+
+{
+  "startDate": "2025-06-12"
+}
+
+### Update Report 1 - userId only
+PATCH http://localhost:8000/reports/1
+Content-Type: application/json
+
+{
+  "userId": 99
+}
+
+### Update Report 1 - multiple fields
+PATCH http://localhost:8000/reports/1
+Content-Type: application/json
+
+{
+  "startDate": "2025-08-21",
+  "endDate": "2025-08-30",
+  "userId": 5
+}
+
+### Delete Report 1
+DELETE http://localhost:8000/reports/1
+
+### Delete Report 2
+DELETE http://localhost:8000/reports/2
+
+### Delete Report 3
+DELETE http://localhost:8000/reports/3
+
+### Delete Report 999 (not found)
+DELETE http://localhost:8000/reports/999
+
+

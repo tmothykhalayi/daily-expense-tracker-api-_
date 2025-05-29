@@ -1,0 +1,31 @@
+
+//expenses
+### 1. Create a new expense
+POST http://localhost:8000/expenses
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "amount": 45.99,
+  "category": "Transportation",
+  "date": "2025-05-29",
+  "description": "Uber ride to airport"
+}
+
+### 2. Get all expenses
+GET http://localhost:8000/expenses
+
+### 3. Get a single expense by ID
+GET http://localhost:8000/expenses/1
+
+### 4. Update an expense by ID
+PATCH http://localhost:8000/expenses/1
+Content-Type: application/json
+
+{
+  "amount": 50.00,
+  "description": "Updated Uber ride to airport"
+}
+
+### 5. Delete an expense by ID
+DELETE http://localhost:8000/expenses/1
