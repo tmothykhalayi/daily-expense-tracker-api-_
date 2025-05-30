@@ -8,7 +8,6 @@ import { ReportsModule } from './reports/reports.module';
 import { SeedModule } from './seed/seed.module';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerMiddle } from './logger.middle';
-//import { LogsModule } from './logs/logs.module';
 import { DatabaseModule } from './database/database.module';
 import { LogsModule } from './logs/logs.module';
 
