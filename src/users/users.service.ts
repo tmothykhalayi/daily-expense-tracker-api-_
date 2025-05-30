@@ -30,7 +30,7 @@ export class UserService {
       name: user.name,
       email: user.email,
       password: user.password,
-      role: 'admin',
+      role: user.role || 'USER', // Default role is USER
       createdAt: new Date(),
       updatedAt: new Date(),
     };

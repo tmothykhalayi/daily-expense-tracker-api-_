@@ -30,23 +30,26 @@ export class SeedService {
       // Prepare users array
       const users: User[] = [];
 
-      // Generate 20 users
-      for (let i = 0; i < 20; i++) {
+      // Generate 30 users
+      this.logger.log('Generating 30 users...');
+      for (let i = 0; i < 30; i++) {
         const user = new User();
-        user.username = faker.internet.userName(); // Use userName for better username generation
-        user.email = faker.internet.email();
-        user.password = 'password123'; // Ideally hash this before saving
+        user.username = faker.internet.userName() + '_' + i; 
+        user.email = faker.internet.email().toLowerCase();
+        user.password = 'password123';
         user.role = faker.helpers.arrayElement([UserRole.ADMIN, UserRole.USER]);
 
         users.push(user);
       }
 
-      // Save all users at once
-      await queryRunner.manager.save(users);
-      this.logger.log('Users seeded successfully.');
+      // Save all users at once - ONLY ONCE
+      const savedUsers = await queryRunner.manager.save(users);
+      this.logger.log(`Successfully saved ${savedUsers.length} users`);
 
       await queryRunner.commitTransaction();
       this.logger.log('Seeding completed successfully.');
+      
+      return { message: `Database seeded with ${savedUsers.length} users` };
     } catch (error) {
       await queryRunner.rollbackTransaction();
       this.logger.error('Error during seeding process:', error);
