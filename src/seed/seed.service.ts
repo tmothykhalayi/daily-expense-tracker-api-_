@@ -49,7 +49,11 @@ export class SeedService {
       await queryRunner.commitTransaction();
       this.logger.log('Seeding completed successfully.');
       
-      return { message: `Database seeded with ${savedUsers.length} users` };
+      // Return the actual seeded users along with a message
+      return { 
+        message: `Database seeded with ${savedUsers.length} users`,
+        users: savedUsers
+      };
     } catch (error) {
       await queryRunner.rollbackTransaction();
       this.logger.error('Error during seeding process:', error);
