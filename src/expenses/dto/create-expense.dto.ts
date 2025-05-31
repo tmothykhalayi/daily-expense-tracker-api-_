@@ -9,7 +9,7 @@ export class CreateExpenseDto {
   category: string;
 
   @IsDateString()
-  date: string;  // ISO Date string
+  date: string;  
 
   @IsOptional()
   @IsString()

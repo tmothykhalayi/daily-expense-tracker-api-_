@@ -3,7 +3,7 @@ import { ReportsService } from './reports.service';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 import { GetReportDto } from './dto/get-report.dto';
-import { Report } from './entities/report.entity'; // <-- Make sure this import is correct
+import { Report } from './entities/report.entity'; 
 
 @Controller('reports')
 export class ReportsController {
@@ -15,7 +15,7 @@ export class ReportsController {
     return this.reportsService.createReport(createReportDto);
   }
   
-  // Get all reports with optional filters
+  // Get all reports
   @Get()
   async getReports(@Query() getReportDto: GetReportDto): Promise<Report[]> {
     return this.reportsService.getAllReports(getReportDto);

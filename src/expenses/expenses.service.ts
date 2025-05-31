@@ -2,9 +2,6 @@ import { Injectable ,NotFoundException } from '@nestjs/common';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 
-
-
-
 export interface Expense {
   expense_id: number;
   user_id: number;

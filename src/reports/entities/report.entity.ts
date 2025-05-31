@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
 
-@Entity('reports') // This decorates the class as a database entity
+@Entity('reports') 
 export class Report {
   @PrimaryGeneratedColumn()
   id: number;

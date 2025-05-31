@@ -6,7 +6,7 @@ export class LoggerMiddle implements NestMiddleware{
     use(request: Request, response: Response, next: NextFunction) {
         const startTime = Date.now();
 
-        // log the request details
+
         console.log(
             `[\x1b[33ms${new Date().toISOString()}\x1b[0m] \x1b[32ms${request.method}\x1b[Om ${request.path}`
         );
