@@ -10,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
 import { LoggerMiddle } from './logger.middle';
 import { DatabaseModule } from './database/database.module';
 import { LogsModule } from './logs/logs.module';
+import { AllExceptionsFilter } from './http-exception.filter';
 
 @Module({
     imports: [
