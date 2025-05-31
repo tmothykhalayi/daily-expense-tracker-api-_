@@ -42,7 +42,7 @@ Content-Type: application/json
 GET http://localhost:8000/reports
 
 ### Get All Reports by userId=1
-GET http://localhost:8000/report/s?userId=1
+GET http://localhost:8000/reports?userId=1
 
 ### Get All Reports startDate=2025-05-05
 GET http://localhost:8000/reports?startDate=2025-05-05
@@ -54,7 +54,7 @@ GET http://localhost:8000/reports?userId=2&endDate=2025-06-20
 GET http://localhost:8000/reports/1
 
 ### Get Report by ID 2
-GET http://localhost:8000/reports/2
+GET http://localhost:8000/reports/1
 
 ### Get Report by ID 3
 GET http://localhost:8000/reports/3
