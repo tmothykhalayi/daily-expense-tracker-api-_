@@ -1,6 +1,6 @@
 ## **Daily Expense Tracker System Overview**
 
-The **Daily Expense Tracker System** is a web-based application built using **PHP** and **MySQL** to help users manage their daily, monthly, and yearly expenses. The system enables users to record their daily expenses, track expenditures, generate reports, and view insights about their spending habits. The application consists of two primary modules: **User** and  **Admin** .
+The **Daily Expense Tracker System** is a web-based application built using **NESTJS** and **PSQL** to help users manage their daily, monthly, and yearly expenses. The system enables users to record their daily expenses, track expenditures, generate reports, and view insights about their spending habits. The application consists of two primary modules: **User** and  **Admin** .
 
 ---
 
@@ -154,8 +154,8 @@ Here is the database schema for the  **Daily Expense Tracker System (DETS)** :
 
 1. **Backend** :
 
-* **PHP** for server-side processing
-* **MySQL** for relational database management
+* **NESTJS** for server-side processing
+* **PSQL** for relational database management
 
 1. **Authentication** :
 
