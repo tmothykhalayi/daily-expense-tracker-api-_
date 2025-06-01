@@ -2,8 +2,6 @@
 
 The **Daily Expense Tracker System** is a web-based application built using **NESTJS** and **PSQL** to help users manage their daily, monthly, and yearly expenses. The system enables users to record their daily expenses, track expenditures, generate reports, and view insights about their spending habits. The application consists of two primary modules: **User** and  **Admin** .
 
----
-
 ### **Modules of the Daily Expense Tracker System**
 
 1. **User Module**
