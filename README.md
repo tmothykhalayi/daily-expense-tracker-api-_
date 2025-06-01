@@ -6,7 +6,6 @@ The **Daily Expense Tracker System** is a web-based application built using **NE
 
 1. **User Module**
 2. **Admin Module**
-
 ---
 
 ### **User Module**
