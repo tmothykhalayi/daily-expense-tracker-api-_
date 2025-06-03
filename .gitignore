@@ -3,14 +3,24 @@
 /node_modules
 /build
 
-# Logs
-logs
-*.log
+# Remove or modify this section
+# *.log
+# npm-debug.log*
+# pnpm-debug.log*
+# yarn-debug.log*
+# yarn-error.log*
+# lerna-debug.log*
+
+# Keep npm and yarn debug logs ignored but allow our application logs
 npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+
+# Ignore all logs except application logs
+logs/*
+!logs/myLogFile.log
 
 # OS
 .DS_Store
