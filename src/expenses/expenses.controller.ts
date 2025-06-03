@@ -1,18 +1,31 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ExpensesService, Expense } from './expenses.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto'
 
 
+@ApiTags('expenses')
 @Controller('expenses')
 export class ExpensesController {
   constructor(private readonly expensesService: ExpensesService) {}
   //post in the expenses controller to create a new expense
+  @ApiOperation({ summary: 'Create new expense' })
+  @ApiResponse({ 
+    status: 201, 
+    description: 'The expense has been successfully created.'
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
   @Post()
   async create(@Body() body: any): Promise<Expense> {
     return this.expensesService.createExpense(body);
   }
   //used  to fetch all expenses
+  @ApiOperation({ summary: 'Get all expenses' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Return all expenses.',
+  })
   @Get()
   async findAll(): Promise<Expense[]> {
     return this.expensesService.findAll();
