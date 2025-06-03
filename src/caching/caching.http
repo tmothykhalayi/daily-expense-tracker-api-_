@@ -1,0 +1,18 @@
+### Create cache entry
+POST http://localhost:8000/caching
+Content-Type: application/json
+
+{
+  "key": "user:123",
+  "value": {
+    "name": "John Doe",
+    "email": "john@example.com"
+  },
+  "ttl": 3600
+}
+
+### Get cache entry
+GET http://localhost:8000/caching/user:123
+
+### Remove cache entry
+DELETE http://localhost:8000/caching/user:123

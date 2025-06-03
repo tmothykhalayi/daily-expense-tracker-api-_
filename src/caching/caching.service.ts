@@ -1,26 +1,73 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager'; 
 import { CreateCachingDto } from './dto/create-caching.dto';
-import { UpdateCachingDto } from './dto/update-caching.dto';
 
 @Injectable()
 export class CachingService {
-  create(createCachingDto: CreateCachingDto) {
-    return 'This action adds a new caching';
+  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+
+  async create(createCachingDto: CreateCachingDto) {
+    const { key, value, ttl } = createCachingDto;
+    try {
+      if (ttl) {
+      
+        await this.cacheManager.set(key, value, ttl);
+      } else {
+        await this.cacheManager.set(key, value);
+      }
+
+      return {
+        success: true,
+        message: `Caching created successfully with key: ${key}`,
+        data: { key, value },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: `Failed to create caching with key: ${key}`,
+        data: null,
+      };
+    }
   }
 
-  findAll() {
-    return `This action returns all caching`;
+  async get(key: string) {
+    try {
+      const value = await this.cacheManager.get(key);
+      if (value !== null && value !== undefined) {
+        return {
+          success: true,
+          message: `Caching retrieved successfully for key: ${key}`,
+          data: { key, value },
+        };
+      } else {
+        return {
+          success: false,
+          message: `No caching found for key: ${key}`,
+          data: null,
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: `Failed to retrieve caching for key: ${key}`,
+        data: null,
+      };
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} caching`;
-  }
-
-  update(id: number, updateCachingDto: UpdateCachingDto) {
-    return `This action updates a #${id} caching`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} caching`;
+  async remove(key: string) {
+    try {
+      await this.cacheManager.del(key);
+      return {
+        success: true,
+        message: `Caching removed successfully for key: ${key}`,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: `Failed to remove caching for key: ${key}`,
+      };
+    }
   }
 }
