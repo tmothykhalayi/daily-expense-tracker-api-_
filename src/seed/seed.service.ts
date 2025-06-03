@@ -28,8 +28,7 @@ export class SeedService {
 
     try {
       await queryRunner.startTransaction();
-
-      // Clear existing data - use try/catch for each deletion to handle tables that might not exist yet
+      this.logger.log('Clearing existing data...');
       try {
         await queryRunner.query('DELETE FROM reports');
         this.logger.log('Reports table cleared successfully.');
@@ -53,7 +52,7 @@ export class SeedService {
 
       // Seed users
       const users: User[] = [];
-      for (let i = 0; i < 50; i++) {
+      for (let i = 0; i < 80; i++) {
         const user = new User();
         user.username = faker.internet.userName() + '_' + i;
         user.email = faker.internet.email().toLowerCase();
@@ -65,7 +64,7 @@ export class SeedService {
     
       const adminUser = new User();
       adminUser.username = 'admin';
-      adminUser.email = 'admin@example.com';
+      adminUser.email = 'admin@gmail.com';
       adminUser.password = 'admin123'; 
       adminUser.role = UserRole.ADMIN;
       users.push(adminUser);

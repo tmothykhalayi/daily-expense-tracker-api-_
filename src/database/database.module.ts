@@ -1,25 +1,23 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
-    imports:[
-        ConfigModule, TypeOrmModule.forRootAsync({
-            imports: [ConfigModule],
-            useFactory: (configService: ConfigService) => ({
-                type: 'postgres',
-                host: configService.getOrThrow<string>('PGHOST'),
-                port: configService.getOrThrow<number>('PGPORT'),
-                username: configService.getOrThrow<string>('PGUSER'),
-                password: configService.getOrThrow<string>('PGPASSWORD'),
-                database: configService.getOrThrow<string>('PGDATABASE'),
-                entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-                synchronize: configService.getOrThrow<boolean>('DB_SYNC', true),
-                logging: configService.getOrThrow<boolean>('DB_LOGGING', false),
-                migrations: [__dirname + '/../migrations/**/*{.ts,.js}'],
-            }),
-            inject: [ConfigService],
-        }),
-    ]
+  imports: [
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_NAME'),
+        entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+        synchronize: process.env.NODE_ENV !== 'production',
+      }),
+      inject: [ConfigService],
+    }),
+  ],
 })
 export class DatabaseModule {}
