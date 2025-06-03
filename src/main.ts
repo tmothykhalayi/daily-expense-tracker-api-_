@@ -29,6 +29,6 @@ async function bootstrap() {
   });
 
   await app.listen(PORT);
-  console.log(`Documentation available at http://localhost:${PORT}/api-docs`);
+  console.log(`Documentation available at http://localhost:${PORT}/api/docs`);
 }
 bootstrap();
