@@ -10,7 +10,6 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   const PORT = configService.getOrThrow<number>('PORT');
-  
 
   const config = new DocumentBuilder()
     .setTitle('Daily Expense Tracker API')

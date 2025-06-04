@@ -131,7 +131,9 @@ export class SeedService {
       this.logger.log('Seeding completed successfully.');
       
       return { 
-        message: `Database seeded with ${savedUsers.length} users, ${savedCategories.length} categories, and ${savedReports.length} reports`,
+        message: `Database seeded with ${savedUsers.length} users, 
+        ${savedCategories.length} categories, 
+        and ${savedReports.length} reports`,
         users: savedUsers.length,
         categories: savedCategories.length, 
         reports: savedReports.length

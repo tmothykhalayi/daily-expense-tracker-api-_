@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/
 import { UserService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity'; // 
+import { User } from './entities/user.entity'; 
 
 @Controller('users')
 export class UsersController {
@@ -17,6 +17,9 @@ export class UsersController {
   //get all users
   @Get()
   async findAllUsers() {
+    if (!this.userService) {
+      throw new Error('UserService is not initialized');
+    }
     return  this.userService.findAllUsers();
   }
 

@@ -7,6 +7,10 @@ export class UpdateReportDto extends PartialType(CreateReportDto) {
   @IsOptional()
   @IsInt()
   user_id?: number;
+   @ApiProperty({
+      description: 'The start date of the report',
+      example: '2023-01-01',
+      type: Date})
 
   @IsOptional()
   @IsDateString()

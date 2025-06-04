@@ -8,7 +8,7 @@ Content-Type: application/json
     "name": "John Doe",
     "email": "john@example.com"
   },
-  "ttl": 3600
+  "ttl": 360
 }
 
 ### Get cache entry
@@ -16,3 +16,6 @@ GET http://localhost:8000/caching/user:123
 
 ### Remove cache entry
 DELETE http://localhost:8000/caching/user:123
+
+##get all users in users module 
+GET http://localhost:8000/users

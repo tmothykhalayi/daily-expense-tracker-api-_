@@ -23,14 +23,13 @@ export class UserService {
     name: string;
     email: string;
     password: string | number;
-    role:string;
-  }): Promise<User> {
+    role:string; }): Promise<User> {
     const newUser: User = {
       id: this.idCounter++,
       name: user.name,
       email: user.email,
       password: user.password,
-      role: user.role || 'USER', // Default role is USER
+      role: user.role || 'USER', // default role
       createdAt: new Date(),
       updatedAt: new Date(),
     };

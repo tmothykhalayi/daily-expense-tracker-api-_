@@ -16,6 +16,7 @@ import { DatabaseModule } from './database/database.module';
 import { LogsModule } from './logs/logs.module';
 import { LoggerMiddle } from './logger.middle';
 import { CachingModule } from './caching/caching.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { CachingModule } from './caching/caching.module';
       isGlobal: true,
       useFactory: (configService: ConfigService) => {
         return {
-          ttl: 60, // in seconds, so 60 seconds = 1 minute
+          ttl: 60, 
           store: createKeyv(configService.getOrThrow<string>('REDIS_URL')),
         };
       },
@@ -44,6 +45,7 @@ import { CachingModule } from './caching/caching.module';
     DatabaseModule,
     LogsModule,
     CachingModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService ,
