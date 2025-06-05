@@ -5,8 +5,8 @@ import { Expense } from '../../expenses/entities/expense.entity';
 
 
 export enum UserRole {
-  ADMIN = 'Admin',
-  USER = 'User',
+  ADMIN = 'ADMIN',
+  USER = 'USER',
 }
 
 @Entity('users')
