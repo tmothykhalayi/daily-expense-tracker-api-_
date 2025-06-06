@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { CachingService } from './caching.service';
-import { CreateCachingDto } from './dto/create-caching.dto';
+import { CreateCachingDto } from './dto/createCachingDto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('caching')

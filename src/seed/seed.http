@@ -18,18 +18,24 @@ Accept: application/json
 
 ###
 
-### Create a new user
-POST http://localhost:8000/users
-Content-Type: application/json
 
-{
-  "username": "John Doe",
-  "email": "john.doe@example.com",
-  "password": "secret123",
-  "role": "USER"
-}
-
-###
 
 ### Delete user with id 1
 DELETE http://localhost:8000/users/1
+
+### Sign in to get access token
+POST http://localhost:8000/auth/signin
+Content-Type: application/json
+
+{
+    "email": "test@example.com",
+    "password": "password123"
+}
+
+### Use the access token (replace YOUR_ACCESS_TOKEN with the token from signin response)
+GET http://localhost:8000/users
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+### Check if user exists
+GET http://localhost:8000/users
+Accept: application/json

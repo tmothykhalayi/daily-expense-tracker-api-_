@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager'; 
-import { CreateCachingDto } from './dto/create-caching.dto';
+import { CreateCachingDto } from './dto/createCachingDto';
 
 @Injectable()
 export class CachingService {

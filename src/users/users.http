@@ -39,3 +39,26 @@ Content-Type: application/json
 
 ### Delete user by id
 DELETE http://localhost:8000/users/1
+
+### Create a new user
+POST http://localhost:8000/users
+Content-Type: application/json
+
+{
+  "name": "peter User",
+  "email": "peter@gmail.com",
+  "password": "peter",
+  "role": "USER"
+  
+}
+
+### Sign in with the created user
+POST http://localhost:8000/auth/signin
+Content-Type: application/json
+
+{
+    "email": "peter@gmail.com",
+    "password": "peter"
+}
+
+###

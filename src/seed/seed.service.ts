@@ -52,9 +52,9 @@ export class SeedService {
 
       // Seed users
       const users: User[] = [];
-      for (let i = 0; i < 80; i++) {
+      for (let i = 0; i < 30; i++) {
         const user = new User();
-        user.username = faker.internet.userName() + '_' + i;
+        user.name = faker.internet.userName() + '_' + i;
         user.email = faker.internet.email().toLowerCase();
         user.password = 'password123'; 
         user.role = faker.helpers.arrayElement([UserRole.ADMIN, UserRole.USER]);
@@ -63,7 +63,7 @@ export class SeedService {
       
     
       const adminUser = new User();
-      adminUser.username = 'admin';
+      adminUser.name = 'admin';
       adminUser.email = 'admin@gmail.com';
       adminUser.password = 'admin123'; 
       adminUser.role = UserRole.ADMIN;
@@ -108,7 +108,7 @@ export class SeedService {
         const lastDayLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
         
         reports.push({
-          userId: user.user_id,
+          userId: user.id,
           startDate: firstDayLastMonth, 
           endDate: lastDayLastMonth
         });
@@ -117,7 +117,7 @@ export class SeedService {
         const firstDayCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
         
         reports.push({
-          userId: user.user_id, 
+          userId: user.id, 
           startDate: firstDayCurrentMonth, 
           endDate: today // Today
         });

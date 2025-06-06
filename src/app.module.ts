@@ -36,6 +36,8 @@ import { AuthModule } from './auth/auth.module';
         };
       },
     }),
+    CategoriesModule,
+    // AuthorizationModule
 
     UsersModule,
     CategoriesModule,
