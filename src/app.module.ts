@@ -1,9 +1,9 @@
-import { CacheModule ,CacheInterceptor } from '@nestjs/cache-manager';
+import { CacheModule, CacheInterceptor } from '@nestjs/cache-manager';
 import { createKeyv } from '@keyv/redis';
-import { CacheableMemory } from 'cacheable';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -29,15 +29,22 @@ import { AuthModule } from './auth/auth.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       isGlobal: true,
-      useFactory: (configService: ConfigService) => {
-        return {
-          ttl: 60, 
-          store: createKeyv(configService.getOrThrow<string>('REDIS_URL')),
-        };
-      },
+      useFactory: (configService: ConfigService) => ({
+        ttl: 60, // seconds
+        store: createKeyv(configService.getOrThrow<string>('REDIS_URL')),
+      }),
     }),
-    CategoriesModule,
-    // AuthorizationModule
+
+    TypeOrmModule.forRoot({
+      type: 'postgres', // or your DB type
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'B3YOND',
+      database: 'expensetracker',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true,
+    }),
 
     UsersModule,
     CategoriesModule,
@@ -50,8 +57,9 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService ,
-     {
+  providers: [
+    AppService,
+    {
       provide: APP_INTERCEPTOR,
       useClass: CacheInterceptor,
     },
@@ -64,3 +72,5 @@ export class AppModule implements NestModule {
       .forRoutes('users', 'categories', 'expenses', 'reports');
   }
 }
+
+

@@ -12,6 +12,127 @@ Content-Type: application/json
   "description": "Uber ride to airport"
 }
 
+//expenses
+### 1. Create a new expense
+POST http://localhost:8000/expenses
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "amount": 15.00,
+  "category": "Food & Dining",
+  "date": "2025-06-01",
+  "description": "Lunch at cafe"
+}
+
+### 2. Create a new expense
+POST http://localhost:8000/expenses
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "amount": 120.00,
+  "category": "Entertainment",
+  "date": "2025-06-02",
+  "description": "Movie tickets"
+}
+
+### 3. Create a new expense
+POST http://localhost:8000/expenses
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "amount": 60.50,
+  "category": "Utilities",
+  "date": "2025-06-03",
+  "description": "Electricity bill"
+}
+
+### 4. Create a new expense
+POST http://localhost:8000/expenses
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "amount": 45.00,
+  "category": "Healthcare",
+  "date": "2025-06-04",
+  "description": "Pharmacy purchase"
+}
+
+### 5. Create a new expense
+POST http://localhost:8000/expenses
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "amount": 200.00,
+  "category": "Education",
+  "date": "2025-06-05",
+  "description": "Online course fee"
+}
+
+### 6. Create a new expense
+POST http://localhost:8000/expenses
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "amount": 80.75,
+  "category": "Shopping",
+  "date": "2025-06-06",
+  "description": "Clothes shopping"
+}
+
+### 7. Create a new expense
+POST http://localhost:8000/expenses
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "amount": 300.00,
+  "category": "Travel",
+  "date": "2025-06-07",
+  "description": "Train tickets"
+}
+
+### 8. Create a new expense
+POST http://localhost:8000/expenses
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "amount": 25.00,
+  "category": "Personal Care",
+  "date": "2025-06-08",
+  "description": "Haircut"
+}
+
+### 9. Create a new expense
+POST http://localhost:8000/expenses
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "amount": 50.00,
+  "category": "Gifts & Donations",
+  "date": "2025-06-09",
+  "description": "Charity donation"
+}
+
+### 10. Create a new expense
+POST http://localhost:8000/expenses
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "amount": 150.00,
+  "category": "Insurance",
+  "date": "2025-06-10",
+  "description": "Health insurance payment"
+}
+
 ### 2. Get all expenses
 GET http://localhost:8000/expenses
 
