@@ -30,6 +30,7 @@ export class UsersService {
     }
 
     const hashedPassword = await bcrypt.hash(user.password, 10);
+    console.log(hashedPassword)
 
     const newUser = this.usersRepository.create({
       name: user.name,
@@ -39,6 +40,7 @@ export class UsersService {
       hashedRefreshToken: 'null',
     });
     
+  
 
     // Save the user
     const savedUser = await this.usersRepository.save(newUser);

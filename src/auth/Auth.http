@@ -1,0 +1,32 @@
+### 1. Create test user first
+POST http://localhost:8000/users
+Content-Type: application/json
+
+{
+    "name": "timothy ",
+    "email": "nandwakhalay@gmail.com",
+    "password": "password123",
+    "role": "ADMIN"
+}
+
+### 2. Sign in to get tokens
+POST http://localhost:8000/auth/signin
+Content-Type: application/json
+
+{
+   "email": "nandwakhalay@gmail.com",
+    "password": "password123"
+}
+
+
+### 4. Test protected route with token
+GET http://localhost:8000/users
+Authorization: Bearer {{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcwLCJlbWFpbCI6Im5hbmR3YWtoYWxheUBnbWFpbC5jb20iLCJpYXQiOjE3NDkyMjIyNDYsImV4cCI6MTc0OTIyMzE0Nn0.Lc0CLo4JRd5mhiqwU5kHlTktM7d6PLy2I1nknDu63Bw"}}
+
+### 5. Sign out (make sure to use actual user ID)
+POST http://localhost:8000/auth/signout/1
+Authorization: Bearer {{accessToken}}
+
+### 6. Refresh token
+POST http://localhost:8000/auth/refresh
+Authorization: Bearer {{$2b$10$/ZgCIu6FuQM.lRK2l3jm4.28.Hx3HHCPUvtKDf6dvgbMpUaSlSWpG"}}
