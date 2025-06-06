@@ -1,66 +1,48 @@
-
-import { Injectable ,NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
-export interface Category {
-  id: number;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-
 @Injectable()
 export class CategoriesService {
-    private categories: Category[] = [];
-  private idCounter = 1;
+  constructor(
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
+  ) {}
 
-  createCategory(dto: CreateCategoryDto): Category {
-    const newCategory: Category = {
-      id: this.idCounter++,
-      name: dto.name,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    this.categories.push(newCategory);
-    return newCategory;
+  async createCategory(dto: CreateCategoryDto): Promise<Category> {
+    const category = this.categoryRepository.create({
+      category_name: dto.name,  // assuming dto.name exists
+    });
+    return await this.categoryRepository.save(category);
   }
 
-  
-  // Finding all categories
-  findAllCategories(): Category[] {
-    return this.categories;
+  async findAllCategories(): Promise<Category[]> {
+    return await this.categoryRepository.find();
   }
 
-
-    // Finding a category by id
-  findCategoryById(id: number): Category {
-    const category = this.categories.find((cat) => cat.id === id);
-    if (!category) throw new NotFoundException(`Category with id ${id} not found`);
-    return category;
-  }
-
-
-  updateCategory(id: number, dto: UpdateCategoryDto): Category {
-    const category = this.findCategoryById(id);
-
-    if (dto.name) {
-      category.name = dto.name;
+  async findCategoryById(id: number): Promise<Category> {
+    const category = await this.categoryRepository.findOneBy({ category_id: id });
+    if (!category) {
+      throw new NotFoundException(`Category with id ${id} not found`);
     }
-
-    category.updatedAt = new Date();
     return category;
   }
 
+  async updateCategory(id: number, dto: UpdateCategoryDto): Promise<Category> {
+    const category = await this.findCategoryById(id);
+    if (dto.name) {
+      category.category_name = dto.name;
+    }
+    return await this.categoryRepository.save(category);
+  }
 
-    // Deleting a category by id
-  deleteCategory(id: number): void {
-    const index = this.categories.findIndex((cat) => cat.id === id);
-    if (index === -1) throw new NotFoundException(`Category with id ${id} not found`);
-    this.categories.splice(index, 1);
+  async deleteCategory(id: number): Promise<void> {
+    const result = await this.categoryRepository.delete(id); // simpler form
+    if (result.affected === 0) {
+      throw new NotFoundException(`Category with id ${id} not found`);
+    }
   }
 }
-
-
-  

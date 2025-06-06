@@ -5,10 +5,14 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeor
 export class Category {
   @PrimaryGeneratedColumn()
   category_id: number;
+  
+  
+  @CreateDateColumn()
+  created_at: Date;
+
 
   @Column({ length: 100, unique: true })
   category_name: string;
 
-  @CreateDateColumn()
-  created_at: Date;
+ 
 }

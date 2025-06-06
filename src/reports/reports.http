@@ -37,6 +37,107 @@ Content-Type: application/json
   "startDate": "2025-08-20",
   "endDate": "2025-08-25"
 }
+//reports
+### 1. Create Report 1
+POST http://localhost:8000/reports
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "startDate": "2025-05-01",
+  "endDate": "2025-05-07"
+}
+
+### 2. Create Report 2
+POST http://localhost:8000/reports
+Content-Type: application/json
+
+{
+  "userId": 2,
+  "startDate": "2025-06-10",
+  "endDate": "2025-06-15"
+}
+
+### 3. Create Report 3
+POST http://localhost:8000/reports
+Content-Type: application/json
+
+{
+  "userId": 3,
+  "startDate": "2025-07-01",
+  "endDate": "2025-07-05"
+}
+
+### 4. Create Report 4
+POST http://localhost:8000/reports
+Content-Type: application/json
+
+{
+  "userId": 4,
+  "startDate": "2025-07-20",
+  "endDate": "2025-07-25"
+}
+
+### 5. Create Report 5
+POST http://localhost:8000/reports
+Content-Type: application/json
+
+{
+  "userId": 5,
+  "startDate": "2025-08-01",
+  "endDate": "2025-08-05"
+}
+
+### 6. Create Report 6
+POST http://localhost:8000/reports
+Content-Type: application/json
+
+{
+  "userId": 6,
+  "startDate": "2025-08-10",
+  "endDate": "2025-08-15"
+}
+
+### 7. Create Report 7
+POST http://localhost:8000/reports
+Content-Type: application/json
+
+{
+  "userId": 7,
+  "startDate": "2025-09-01",
+  "endDate": "2025-09-07"
+}
+
+### 8. Create Report 8
+POST http://localhost:8000/reports
+Content-Type: application/json
+
+{
+  "userId": 8,
+  "startDate": "2025-09-10",
+  "endDate": "2025-09-15"
+}
+
+### 9. Create Report 9
+POST http://localhost:8000/reports
+Content-Type: application/json
+
+{
+  "userId": 9,
+  "startDate": "2025-10-01",
+  "endDate": "2025-10-05"
+}
+
+### 10. Create Report 10
+POST http://localhost:8000/reports
+Content-Type: application/json
+
+{
+  "userId": 10,
+  "startDate": "2025-10-10",
+  "endDate": "2025-10-15"
+}
+
 
 ### Get All Reports (no filter)
 GET http://localhost:8000/reports
