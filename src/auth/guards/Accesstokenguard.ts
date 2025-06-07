@@ -12,15 +12,18 @@ export class AccessTokenGuard extends AuthGuard('jwt-at') {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
+    // Check if the route or controller has @Public() decorator
     const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
       context.getHandler(),
       context.getClass(),
     ]);
 
+    // If route is public, bypass guard
     if (isPublic) {
       return true;
     }
 
+    // Otherwise, invoke Passport JWT access token validation
     return super.canActivate(context);
   }
 }

@@ -8,13 +8,13 @@ import {
   Param,
   ParseIntPipe,
 } from '@nestjs/common';
-import { CreateAuthDto } from './dto/login.dto';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
+import { CreateAuthDto } from './dto/login.dto';
 import { Public } from './decorators/public.decorator';
 import { AtGuard, RtGuard } from './guards';
 
-// Custom interface for typed user object on request
+// Custom interface to include user payload from JWT
 export interface RequestWithUser extends Request {
   user: {
     sub: number;
@@ -26,27 +26,27 @@ export interface RequestWithUser extends Request {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // Public login route
+  // ===== SIGN IN =====
   @Public()
   @Post('signin')
   async signIn(@Body() createAuthDto: CreateAuthDto) {
     return this.authService.signIn(createAuthDto);
   }
 
-  // Authenticated signout using access token
+  // ===== SIGN OUT =====
   @UseGuards(AtGuard)
   @Post('signout/:id')
   async signOut(@Param('id', ParseIntPipe) id: number) {
     return this.authService.signOut(id);
   }
 
-  // Public route, protected by refresh token guard
+  // ===== REFRESH TOKENS =====
   @Public()
   @UseGuards(RtGuard)
   @Post('refresh')
   async refreshTokens(@Req() req: RequestWithUser) {
-    // Extract refresh token from Authorization header
-    const refreshToken = req.headers['authorization']?.replace('Bearer ', '');
+    const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+    const refreshToken = typeof authHeader === 'string' ? authHeader.replace('Bearer ', '') : null;
 
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token missing');

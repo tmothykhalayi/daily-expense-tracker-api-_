@@ -14,19 +14,21 @@ POST http://localhost:8000/auth/signin
 Content-Type: application/json
 
 {
-   "email": "nandwatimothykhalay@gmail.com",
+   "email": "nandwakhalay@gmail.com",
     "password": "password123"
 }
 
 
 ### 4. Test protected route with token
 GET http://localhost:8000/users
-Authorization: Bearer {{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjY4LCJlbWFpbCI6Im5hbmR3YXRpbW90aHlraGFsYXlAZ21haWwuY29tIiwiaWF0IjoxNzQ5MjM0Nzg4LCJleHAiOjE3NDkyMzU2ODh9.JJz97f7BfKdjg3coIUz_pwhrpog-Numydy4LWU_Huo8"}}
+Authorization: Bearer {{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcwLCJlbWFpbCI6Im5hbmR3YWtoYWxheUBnbWFpbC5jb20iLCJpYXQiOjE3NDkzMjU1NzgsImV4cCI6MTc0OTMyNTg3OH0.wWhanNZe100A1mLr4x0gu1p_w_9Rzg0E0sOM-6hoqiQ"}}
 
 ### 5. Sign out (make sure to use actual user ID)
-POST http://localhost:8000/auth/signout/1
-Authorization: Bearer {{accessToken}}
+POST http://localhost:8000/auth/signout/70
+Authorization: Bearer {{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcwLCJlbWFpbCI6Im5hbmR3YWtoYWxheUBnbWFpbC5jb20iLCJpYXQiOjE3NDkzMjU1NzgsImV4cCI6MTc0OTMyNTg3OH0.wWhanNZe100A1mLr4x0gu1p_w_9Rzg0E0sOM-6hoqiQ"}}
 
 ### 6. Refresh token
 POST http://localhost:8000/auth/refresh
-Authorization: Bearer {{$2b$10$/ZgCIu6FuQM.lRK2l3jm4.28.Hx3HHCPUvtKDf6dvgbMpUaSlSWpG"}}
+Authorization: Bearer {{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcwLCJlbWFpbCI6Im5hbmR3YWtoYWxheUBnbWFpbC5jb20iLCJpYXQiOjE3NDkzMjU1NzgsImV4cCI6MTc0OTMyNTg3OH0.wWhanNZe100A1mLr4x0gu1p_w_9Rzg0E0sOM-6hoqiQ"}}
+
+
