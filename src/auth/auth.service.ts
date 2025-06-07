@@ -52,6 +52,7 @@ export class AuthService {
       throw error;
     }
   }
+  //ACCESS AND REFRESH TOKENS
 
   private async getTokens(userId: number, email: string) {
     const [accessToken, refreshToken] = await Promise.all([
@@ -66,7 +67,7 @@ export class AuthService {
         { sub: userId, email },
         {
           secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-          expiresIn: '7d',
+          expiresIn: '3h', //
         },
       ),
     ]);
@@ -122,9 +123,3 @@ export class AuthService {
   }
 }
 
-async function testHash() {
-  const password = 'password123';
-  const hash = await bcrypt.hash(password, 10);
-  
-  const isMatch = await bcrypt.compare(password, hash);
-}

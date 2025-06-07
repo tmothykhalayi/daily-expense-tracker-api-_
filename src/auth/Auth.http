@@ -14,14 +14,14 @@ POST http://localhost:8000/auth/signin
 Content-Type: application/json
 
 {
-   "email": "nandwakhalay@gmail.com",
+   "email": "nandwatimothykhalay@gmail.com",
     "password": "password123"
 }
 
 
 ### 4. Test protected route with token
 GET http://localhost:8000/users
-Authorization: Bearer {{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcwLCJlbWFpbCI6Im5hbmR3YWtoYWxheUBnbWFpbC5jb20iLCJpYXQiOjE3NDkyMjIyNDYsImV4cCI6MTc0OTIyMzE0Nn0.Lc0CLo4JRd5mhiqwU5kHlTktM7d6PLy2I1nknDu63Bw"}}
+Authorization: Bearer {{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjY4LCJlbWFpbCI6Im5hbmR3YXRpbW90aHlraGFsYXlAZ21haWwuY29tIiwiaWF0IjoxNzQ5MjM0Nzg4LCJleHAiOjE3NDkyMzU2ODh9.JJz97f7BfKdjg3coIUz_pwhrpog-Numydy4LWU_Huo8"}}
 
 ### 5. Sign out (make sure to use actual user ID)
 POST http://localhost:8000/auth/signout/1
