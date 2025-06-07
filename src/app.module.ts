@@ -35,7 +35,7 @@ import { AuthModule } from './auth/auth.module';
         return {
           ttl: 60, // cache TTL in seconds
           store: redisStore,
-          url: redisUrl,
+         url: 'redis://localhost:6379',
         };
       },
     }),
