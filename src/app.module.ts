@@ -5,7 +5,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -31,11 +30,14 @@ import { AuthModule } from './auth/auth.module';
       inject: [ConfigService],
       isGlobal: true,
       useFactory: (configService: ConfigService) => {
-        const redisUrl = configService.getOrThrow<string>('REDIS_URL');
+        // Try to get REDIS_URL or fallback to localhost without auth
+        const redisUrl =
+          configService.get<string>('REDIS_URL') || 'redis://localhost:6379';
+
         return {
           ttl: 60, // cache TTL in seconds
           store: redisStore,
-         url: 'redis://localhost:6379',
+          url: redisUrl,
         };
       },
     }),
