@@ -29,10 +29,13 @@ import { AuthModule } from './auth/auth.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       isGlobal: true,
-      useFactory: (configService: ConfigService) => ({
-        ttl: 60, // seconds
-        store: createKeyv(configService.getOrThrow<string>('REDIS_URL')),
-      }),
+      useFactory: (configService: ConfigService) => {
+        const redisUrl = configService.getOrThrow<string>('REDIS_URL') || 'redis://localhost:6379';
+        return {
+          ttl: 60, // seconds
+          store: createKeyv(redisUrl),
+        };
+      }
     }),
 
     TypeOrmModule.forRoot({
@@ -72,5 +75,4 @@ export class AppModule implements NestModule {
       .forRoutes('users', 'categories', 'expenses', 'reports');
   }
 }
-
 
