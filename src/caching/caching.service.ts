@@ -10,12 +10,7 @@ export class CachingService {
   async create(createCachingDto: CreateCachingDto) {
     const { key, value, ttl } = createCachingDto;
     try {
-      if (ttl) {
-      
-        await this.cacheManager.set(key, value, ttl);
-      } else {
-        await this.cacheManager.set(key, value);
-      }
+      await this.cacheManager.set(key, value, ttl);
 
       return {
         success: true,
@@ -23,6 +18,7 @@ export class CachingService {
         data: { key, value },
       };
     } catch (error) {
+      console.error(`Failed to create caching for key ${key}:`, error);
       return {
         success: false,
         message: `Failed to create caching with key: ${key}`,
@@ -48,6 +44,7 @@ export class CachingService {
         };
       }
     } catch (error) {
+      console.error(`Failed to retrieve caching for key ${key}:`, error);
       return {
         success: false,
         message: `Failed to retrieve caching for key: ${key}`,
@@ -64,6 +61,7 @@ export class CachingService {
         message: `Caching removed successfully for key: ${key}`,
       };
     } catch (error) {
+      console.error(`Failed to remove caching for key ${key}:`, error);
       return {
         success: false,
         message: `Failed to remove caching for key: ${key}`,

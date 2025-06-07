@@ -1,5 +1,5 @@
 import { CacheModule, CacheInterceptor } from '@nestjs/cache-manager';
-import { createKeyv } from '@keyv/redis';
+import * as redisStore from 'cache-manager-redis-store';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
@@ -30,16 +30,17 @@ import { AuthModule } from './auth/auth.module';
       inject: [ConfigService],
       isGlobal: true,
       useFactory: (configService: ConfigService) => {
-        const redisUrl = configService.getOrThrow<string>('REDIS_URL') || 'redis://localhost:6379';
+        const redisUrl = configService.getOrThrow<string>('REDIS_URL');
         return {
-          ttl: 60, // seconds
-          store: createKeyv(redisUrl),
+          ttl: 60, // cache TTL in seconds
+          store: redisStore,
+          url: redisUrl,
         };
-      }
+      },
     }),
 
     TypeOrmModule.forRoot({
-      type: 'postgres', // or your DB type
+      type: 'postgres',
       host: 'localhost',
       port: 5432,
       username: 'postgres',
@@ -75,4 +76,3 @@ export class AppModule implements NestModule {
       .forRoutes('users', 'categories', 'expenses', 'reports');
   }
 }
-
