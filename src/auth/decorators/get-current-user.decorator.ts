@@ -8,7 +8,7 @@ export const GetCurrentUser = createParamDecorator(
     (data: string | undefined, context: ExecutionContext) => {
         const request = context.switchToHttp().getRequest();
         if (data) {
-            return request.user[data]; // Return specific property if data is provided
+            return request.user[data]; 
         }
         return request.user; // Return entire user object
     },

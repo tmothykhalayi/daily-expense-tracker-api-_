@@ -18,6 +18,7 @@ export class AtStrategy extends PassportStrategy(Strategy, 'jwt-at') {
   }
 
   validate(payload: JWTPayload): JWTPayload {
+    console.log('Access Token Validated:', payload);
     return payload;
   }
 }

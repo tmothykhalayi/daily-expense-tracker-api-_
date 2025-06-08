@@ -1,34 +1,37 @@
-### 1. Create test user first
+### 1. Create test user
 POST http://localhost:8000/users
 Content-Type: application/json
 
 {
-    "name": "timothy ",
-    "email": "nandwakhalay@gmail.com",
+    "name": "luke smith",
+    "email": "lukesmith@gmail.com",
     "password": "password123",
-    "role": "ADMIN"
+    "role": "USER"
 }
 
-### 2. Sign in to get tokens
+### 2. Sign in
 POST http://localhost:8000/auth/signin
 Content-Type: application/json
 
-{
-   "email": "nandwakhalay@gmail.com",
+{"email": "lukesmith@gmail.com",
     "password": "password123"
 }
 
+### 3. Store tokens from signin response
+@accessToken = {{signin.response.body.accessToken}}
+@refreshToken = {{signin.response.body.refreshToken}}
+@userId = {{signin.response.body.user.id}}
 
-### 4. Test protected route with token
+### 4. Test protected route
 GET http://localhost:8000/users
-Authorization: Bearer {{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcwLCJlbWFpbCI6Im5hbmR3YWtoYWxheUBnbWFpbC5jb20iLCJpYXQiOjE3NDkzMjU1NzgsImV4cCI6MTc0OTMyNTg3OH0.wWhanNZe100A1mLr4x0gu1p_w_9Rzg0E0sOM-6hoqiQ"}}
+Authorization: Bearer {{  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDkzNjQ2NTksImV4cCI6MTc0OTM2NTU1OX0.0NCv4AR-Pk0L2F7ClgiddfTe_WmJlZYmEW-iiXbmvhA"}}
 
-### 5. Sign out (make sure to use actual user ID)
-POST http://localhost:8000/auth/signout/70
-Authorization: Bearer {{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcwLCJlbWFpbCI6Im5hbmR3YWtoYWxheUBnbWFpbC5jb20iLCJpYXQiOjE3NDkzMjU1NzgsImV4cCI6MTc0OTMyNTg3OH0.wWhanNZe100A1mLr4x0gu1p_w_9Rzg0E0sOM-6hoqiQ"}}
-
-### 6. Refresh token
+### 5. Refresh tokens
 POST http://localhost:8000/auth/refresh
-Authorization: Bearer {{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcwLCJlbWFpbCI6Im5hbmR3YWtoYWxheUBnbWFpbC5jb20iLCJpYXQiOjE3NDkzMjU1NzgsImV4cCI6MTc0OTMyNTg3OH0.wWhanNZe100A1mLr4x0gu1p_w_9Rzg0E0sOM-6hoqiQ"}}
+Authorization: Bearer {{ "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDkzNjQ2NTksImV4cCI6MTc0OTM2NTU1OX0.0NCv4AR-Pk0L2F7ClgiddfTe_WmJlZYmEW-iiXbmvhA"}}
+
+### 6. Sign out
+POST http://localhost:8000/auth/signout/{{72}}
+Authorization: Bearer {{  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDkzNjQ2NTksImV4cCI6MTc0OTM2NTU1OX0.0NCv4AR-Pk0L2F7ClgiddfTe_WmJlZYmEW-iiXbmvhA"}}
 
 

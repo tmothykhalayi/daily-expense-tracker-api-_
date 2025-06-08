@@ -70,51 +70,64 @@ export class AuthService {
   }
 
   // ===== REFRESH TOKENS =====
-  async refreshTokens(
-    userId: number,
-    refreshToken: string,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-      select: ['id', 'email', 'hashedRefreshToken'],
-    });
+  async refreshTokens(userId: number, refreshToken: string) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { id: userId },
+        select: ['id', 'email', 'hashedRefreshToken'],
+      });
 
-    if (!user || !user.hashedRefreshToken) {
-      throw new UnauthorizedException('Access denied');
+      if (!user) {
+        this.logger.warn(`Refresh failed: User not found - ID: ${userId}`);
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      if (!user.hashedRefreshToken) {
+        this.logger.warn(`Refresh failed: No refresh token stored - ID: ${userId}`);
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      const tokenMatches = await bcrypt.compare(
+        refreshToken,
+        user.hashedRefreshToken,
+      );
+
+      if (!tokenMatches) {
+        this.logger.warn(`Refresh failed: Token mismatch - ID: ${userId}`);
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      const tokens = await this.getTokens(user.id, user.email);
+      await this.updateRefreshToken(user.id, tokens.refreshToken);
+
+      return tokens;
+    } catch (error) {
+      this.logger.error(`Refresh token error: ${error.message}`);
+      throw error;
     }
-
-    const refreshTokenMatches = await bcrypt.compare(
-      refreshToken,
-      user.hashedRefreshToken,
-    );
-
-    if (!refreshTokenMatches) {
-      throw new UnauthorizedException('Access denied');
-    }
-
-    const { accessToken, refreshToken: newRefreshToken } =
-      await this.getTokens(user.id, user.email);
-
-    await this.updateRefreshToken(user.id, newRefreshToken);
-
-    return {
-      accessToken,
-      refreshToken: newRefreshToken,
-    };
   }
 
   // ===== SIGN OUT =====
-  async signOut(userId: number): Promise<{ message: string }> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+  async signOut(userId: number) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { id: userId },
+      });
 
-    if (!user) {
-      throw new NotFoundException(`User not found with id: ${userId}`);
+      if (!user) {
+        throw new NotFoundException(`User not found: ${userId}`);
+      }
+
+      // Clear refresh token
+      await this.userRepository.update(userId, {
+        hashedRefreshToken: null,
+      });
+
+      return { message: 'Successfully signed out' };
+    } catch (error) {
+      this.logger.error(`Sign out error: ${error.message}`);
+      throw error;
     }
-
-    user.hashedRefreshToken = null;
-    await this.userRepository.save(user);
-
-    return { message: 'User signed out successfully' };
   }
 
   // ===== GET TOKENS =====
@@ -123,23 +136,20 @@ export class AuthService {
       this.jwtService.signAsync(
         { sub: userId, email },
         {
-          secret: this.configService.getOrThrow<string>('JWT_ACCESS_TOKEN_SECRET'),
-          expiresIn: '5m', // Access token valid for 5 minutes
+          secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
+          expiresIn: '15m',
         },
       ),
       this.jwtService.signAsync(
         { sub: userId, email },
         {
-          secret: this.configService.getOrThrow<string>('JWT_REFRESH_TOKEN_SECRET'),
-          expiresIn: '1h', // Refresh token valid for 1 hour (adjust as needed)
+          secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
+          expiresIn: '7d',
         },
       ),
     ]);
 
-    return {
-      accessToken,
-      refreshToken,
-    };
+    return { accessToken, refreshToken };
   }
 
   // ===== UPDATE REFRESH TOKEN =====

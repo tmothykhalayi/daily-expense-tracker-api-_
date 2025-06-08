@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post,Patch, Body, Param, Delete, Put } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ExpensesService } from './expenses.service';
 import { Expense } from './entities/expense.entity';
 import { CreateExpenseDto } from './dto/create-expense.dto';
-import { UpdateExpenseDto } from './dto/update-expense.dto'
+import { UpdateExpenseDto } from './dto/update-expense.dto';
+import { Public, GetCurrentUser, GetCurrentUserId } from '../auth/decorators'; // Note the relative path
 
 
 @ApiTags('expenses')

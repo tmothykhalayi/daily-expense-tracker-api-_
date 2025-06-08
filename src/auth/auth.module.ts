@@ -17,15 +17,25 @@ import { ConfigService } from '@nestjs/config';
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get('JWT_ACCESS_SECRET'),
+        secret: configService.get('JWT_ACCESS_TOKEN_SECRET'),
         signOptions: {
           expiresIn: '15m',
         },
       }),
     }),
-    PassportModule.register({ defaultStrategy: 'jwt-at' }), // Updated default strategy
+    PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
-  providers: [AuthService, AtStrategy, RfStrategy], // Added both strategies
+  providers: [
+    AuthService,
+    AtStrategy,
+    RfStrategy,
+    {
+      provide: 'JWT_REFRESH_TOKEN_SECRET',
+      useFactory: (configService: ConfigService) => 
+        configService.get('JWT_REFRESH_TOKEN_SECRET'),
+      inject: [ConfigService],
+    },
+  ],
   controllers: [AuthController],
   exports: [AuthService, JwtModule],
 })

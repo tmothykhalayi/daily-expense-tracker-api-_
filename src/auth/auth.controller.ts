@@ -11,7 +11,7 @@ import {
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/login.dto';
-import { Public } from './decorators/public.decorator';
+import { Public, GetCurrentUser, GetCurrentUserId } from './decorators';
 import { AtGuard, RtGuard } from './guards';
 
 // Custom interface to include user payload from JWT
@@ -36,7 +36,10 @@ export class AuthController {
   // ===== SIGN OUT =====
   @UseGuards(AtGuard)
   @Post('signout/:id')
-  async signOut(@Param('id', ParseIntPipe) id: number) {
+  async signOut(
+    @GetCurrentUserId() userId: number,
+    @Param('id', ParseIntPipe) id: number
+  ) {
     return this.authService.signOut(id);
   }
 
@@ -44,7 +47,10 @@ export class AuthController {
   @Public()
   @UseGuards(RtGuard)
   @Post('refresh')
-  async refreshTokens(@Req() req: RequestWithUser) {
+  async refreshTokens(
+    @GetCurrentUser() user: { sub: number; email: string },
+    @Req() req: RequestWithUser
+  ) {
     const authHeader = req.headers['authorization'] || req.headers['Authorization'];
     const refreshToken = typeof authHeader === 'string' ? authHeader.replace('Bearer ', '') : null;
 
