@@ -11,7 +11,8 @@ import {
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/login.dto';
-import { Public, GetCurrentUser, GetCurrentUserId } from './decorators';
+import { Public } from './decorators/public.decorator';
+import { GetCurrentUserId } from './decorators/get-current-user-id.decorator';
 import { AtGuard, RtGuard } from './guards';
 
 // Custom interface to include user payload from JWT
@@ -40,6 +41,9 @@ export class AuthController {
     @GetCurrentUserId() userId: number,
     @Param('id', ParseIntPipe) id: number
   ) {
+    if (userId !== id) {
+      throw new UnauthorizedException('Cannot sign out other users');
+    }
     return this.authService.signOut(id);
   }
 
@@ -48,16 +52,10 @@ export class AuthController {
   @UseGuards(RtGuard)
   @Post('refresh')
   async refreshTokens(
-    @GetCurrentUser() user: { sub: number; email: string },
+    @GetCurrentUserId() userId: number,
     @Req() req: RequestWithUser
   ) {
-    const authHeader = req.headers['authorization'] || req.headers['Authorization'];
-    const refreshToken = typeof authHeader === 'string' ? authHeader.replace('Bearer ', '') : null;
-
-    if (!refreshToken) {
-      throw new UnauthorizedException('Refresh token missing');
-    }
-
-    return this.authService.refreshTokens(req.user.sub, refreshToken);
+    const refreshToken = req.headers.authorization?.split(' ')[1] || '';
+    return this.authService.refreshTokens(userId, refreshToken);
   }
 }

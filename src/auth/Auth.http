@@ -13,25 +13,26 @@ Content-Type: application/json
 POST http://localhost:8000/auth/signin
 Content-Type: application/json
 
-{"email": "lukesmith@gmail.com",
+{
+    "email": "lukesmith@gmail.com",
     "password": "password123"
 }
 
 ### 3. Store tokens from signin response
-@accessToken = {{signin.response.body.accessToken}}
-@refreshToken = {{signin.response.body.refreshToken}}
-@userId = {{signin.response.body.user.id}}
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDkzOTE0MDUsImV4cCI6MTc0OTM5MjMwNX0.OgSDzKh-dfsSdyCd2tTRfdVUWXAwHSmTSoa-oNDsAeY
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDkzNjQ2NTksImV4cCI6MTc0OTM2NTU1OX0.0NCv4AR-Pk0L2F7ClgiddfTe_WmJlZYmEW-iiXbmvhA
+@userId = 72
 
 ### 4. Test protected route
 GET http://localhost:8000/users
-Authorization: Bearer {{  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDkzNjQ2NTksImV4cCI6MTc0OTM2NTU1OX0.0NCv4AR-Pk0L2F7ClgiddfTe_WmJlZYmEW-iiXbmvhA"}}
+Authorization: Bearer {{accessToken}}
 
 ### 5. Refresh tokens
 POST http://localhost:8000/auth/refresh
-Authorization: Bearer {{ "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDkzNjQ2NTksImV4cCI6MTc0OTM2NTU1OX0.0NCv4AR-Pk0L2F7ClgiddfTe_WmJlZYmEW-iiXbmvhA"}}
+Authorization: Bearer {{refreshToken}}
 
-### 6. Sign out
-POST http://localhost:8000/auth/signout/{{72}}
-Authorization: Bearer {{  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDkzNjQ2NTksImV4cCI6MTc0OTM2NTU1OX0.0NCv4AR-Pk0L2F7ClgiddfTe_WmJlZYmEW-iiXbmvhA"}}
+### 6. Sign out (using stored userId)
+POST http://localhost:8000/auth/signout/{{userId}}
+Authorization: Bearer {{accessToken}}
 
 

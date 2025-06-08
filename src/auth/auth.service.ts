@@ -107,6 +107,18 @@ export class AuthService {
     }
   }
 
+  // ===== VALIDATE TOKEN =====
+  async validateToken(token: string): Promise<any> {
+    try {
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
+      });
+      return payload;
+    } catch {
+      throw new UnauthorizedException('Invalid token');
+    }
+  }
+
   // ===== SIGN OUT =====
   async signOut(userId: number) {
     try {
@@ -115,10 +127,10 @@ export class AuthService {
       });
 
       if (!user) {
+        this.logger.warn(`Signout failed: User not found - ID: ${userId}`);
         throw new NotFoundException(`User not found: ${userId}`);
       }
 
-      // Clear refresh token
       await this.userRepository.update(userId, {
         hashedRefreshToken: null,
       });
