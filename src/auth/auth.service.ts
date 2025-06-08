@@ -58,9 +58,7 @@ export class AuthService {
       // Create a copy without sensitive fields
       const { password, hashedRefreshToken, ...userWithoutSensitive } = user;
 
-      const tokens = await this.getTokens(user.id, user.email);
-      console.log('[AuthService] Generated tokens with secret:', 
-        this.configService.get('JWT_ACCESS_TOKEN_SECRET')?.slice(0, 3) + '...');
+      this.logger.log('[AuthService] Tokens generated successfully');
 
       return {
         user: userWithoutSensitive,
@@ -167,13 +165,18 @@ export class AuthService {
 
     return { accessToken, refreshToken };
   }
+ // ===== UPDATE REFRESH TOKEN =====
+private async updateRefreshToken(userId: number, refreshToken: string) {
+  const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+  this.logger.log(`Hashing and updating refresh token for user ID: ${userId}`);
 
-  // ===== UPDATE REFRESH TOKEN =====
-  private async updateRefreshToken(userId: number, refreshToken: string) {
-    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+  const result = await this.userRepository.update(userId, { hashedRefreshToken });
+  this.logger.log(`Update result: ${JSON.stringify(result)}`);
 
-    await this.userRepository.update(userId, {
-      hashedRefreshToken,
-    });
+  if (result.affected === 0) {
+    this.logger.warn(`Failed to update refresh token hash for user ID: ${userId}`);
+  } else {
+    this.logger.log(`Refresh token hash updated successfully for user ID: ${userId}`);
   }
+}
 }

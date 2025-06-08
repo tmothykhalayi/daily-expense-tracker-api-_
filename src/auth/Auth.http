@@ -19,23 +19,23 @@ Content-Type: application/json
 }
 
 ### 3. Store tokens from signin response (update manually after login)
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDAyODgsImV4cCI6MTc0OTQwMTE4OH0.vhzKkYutbqIzlkxuBo11yF720DJ0Bj3ZC1DLidhsIeY
-@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDAyODgsImV4cCI6MTc1MDAwNTA4OH0.huzfZ45t1Iiwpw3Mxq4abRwqagNHglS-tly2aW4ijrs
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDI5NjksImV4cCI6MTc0OTQwMzg2OX0.Xugcwz6Kf0l8pixh7MZdVDsYqUkGLjt5QCFZ5JrztCg
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDI5NjksImV4cCI6MTc1MDAwNzc2OX0.F_y8ILDuFOSF_iv5VG6P47_oLTTBEl9_clhF1hcTtFk
 @userId = 72
 
 ### 4. Test protected route
 GET http://localhost:8000/users
-Authorization: Bearer {{accessToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDIwNDEsImV4cCI6MTc0OTQwMjk0MX0.NEnerKoiQUhQjEkln3ZP8nbjKYmk5sTXUSx55lOSkGk
 
 ### 5. Refresh tokens
 POST http://localhost:8000/auth/refresh
-Authorization: Bearer {{refreshToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDI5NjksImV4cCI6MTc1MDAwNzc2OX0.F_y8ILDuFOSF_iv5VG6P47_oLTTBEl9_clhF1hcTtFk
 
 ### 6. Sign out
-POST http://localhost:8000/auth/signout/{{userId}}
-Authorization: Bearer {{accessToken}}
+POST http://localhost:8000/auth/signout/72
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDMyNzMsImV4cCI6MTc0OTQwNDE3M30.NZeB4sGLxLBfDsxCgSDeqsoWINkso_zFVI5alW3wB54
 Content-Type: application/json
 
 {
-  "refreshToken": "{{refreshToken}}"
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDIwNDEsImV4cCI6MTc1MDAwNjg0MX0.dyAbC-pl3wTUCItBydr19VS50BerIRWlJzu4WRGtftQ"
 }

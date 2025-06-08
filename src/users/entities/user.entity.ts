@@ -37,8 +37,9 @@ export class User {
   })
   role: UserRole;
 
-  @Column({ type: 'text', nullable: true, default: null })
-  hashedRefreshToken: string | null;
+  @Column({ type: 'text', nullable: true, select: false, default: null })
+ hashedRefreshToken: string | null;
+
 
   @OneToMany(() => Expense, expense => expense.user)
   expenses: Expense[];

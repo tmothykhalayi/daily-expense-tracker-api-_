@@ -21,6 +21,7 @@ export class RfStrategy extends PassportStrategy(Strategy, 'jwt-rt') {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: configService.getOrThrow<string>('JWT_REFRESH_TOKEN_SECRET'),
       passReqToCallback: true,
+      ignoreExpiration: false,  // ensure expired tokens are rejected
     });
   }
 
