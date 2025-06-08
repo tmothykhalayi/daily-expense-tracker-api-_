@@ -1,13 +1,6 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
-import { Observable } from 'rxjs';
-
-/*
-- Purpose: Protects routes from unauthorized access
-- How it works: Intercepts requests and uses the access token strategy to validate before allowing the request to proceed
-- Applied globally to all routes by default
-*/
 
 @Injectable()
 export class AtGuard extends AuthGuard('jwt-at') {
@@ -15,10 +8,8 @@ export class AtGuard extends AuthGuard('jwt-at') {
     super();
   }
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
+  canActivate(context: ExecutionContext) {
+    const isPublic = this.reflector.getAllAndOverride('isPublic', [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -28,5 +19,12 @@ export class AtGuard extends AuthGuard('jwt-at') {
     }
 
     return super.canActivate(context);
+  }
+
+  handleRequest(err, user, info) {
+    if (err || !user) {
+      throw err || new Error('Unauthorized');
+    }
+    return user;
   }
 }

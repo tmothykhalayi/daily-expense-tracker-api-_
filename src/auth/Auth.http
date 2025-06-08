@@ -9,7 +9,7 @@ Content-Type: application/json
     "role": "USER"
 }
 
-### 2. Sign in
+### 2. Sign in (get access and refresh tokens)
 POST http://localhost:8000/auth/signin
 Content-Type: application/json
 
@@ -18,9 +18,9 @@ Content-Type: application/json
     "password": "password123"
 }
 
-### 3. Store tokens from signin response
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDkzOTE0MDUsImV4cCI6MTc0OTM5MjMwNX0.OgSDzKh-dfsSdyCd2tTRfdVUWXAwHSmTSoa-oNDsAeY
-@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDkzNjQ2NTksImV4cCI6MTc0OTM2NTU1OX0.0NCv4AR-Pk0L2F7ClgiddfTe_WmJlZYmEW-iiXbmvhA
+### 3. Store tokens from signin response (update manually after login)
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDAyODgsImV4cCI6MTc0OTQwMTE4OH0.vhzKkYutbqIzlkxuBo11yF720DJ0Bj3ZC1DLidhsIeY
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDAyODgsImV4cCI6MTc1MDAwNTA4OH0.huzfZ45t1Iiwpw3Mxq4abRwqagNHglS-tly2aW4ijrs
 @userId = 72
 
 ### 4. Test protected route
@@ -31,8 +31,11 @@ Authorization: Bearer {{accessToken}}
 POST http://localhost:8000/auth/refresh
 Authorization: Bearer {{refreshToken}}
 
-### 6. Sign out (using stored userId)
+### 6. Sign out
 POST http://localhost:8000/auth/signout/{{userId}}
 Authorization: Bearer {{accessToken}}
+Content-Type: application/json
 
-
+{
+  "refreshToken": "{{refreshToken}}"
+}

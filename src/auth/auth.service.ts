@@ -58,6 +58,10 @@ export class AuthService {
       // Create a copy without sensitive fields
       const { password, hashedRefreshToken, ...userWithoutSensitive } = user;
 
+      const tokens = await this.getTokens(user.id, user.email);
+      console.log('[AuthService] Generated tokens with secret:', 
+        this.configService.get('JWT_ACCESS_TOKEN_SECRET')?.slice(0, 3) + '...');
+
       return {
         user: userWithoutSensitive,
         accessToken,

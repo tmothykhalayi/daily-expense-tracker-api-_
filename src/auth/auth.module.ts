@@ -6,7 +6,7 @@ import { DatabaseModule } from 'src/database/database.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { User } from '../users/entities/user.entity';
-import { AtStrategy, RfStrategy } from './strategies'; 
+import { AtStrategy, RfStrategy } from './strategies/index'; 
 import { ConfigService } from '@nestjs/config';
 
 @Global()
@@ -14,6 +14,7 @@ import { ConfigService } from '@nestjs/config';
   imports: [
     DatabaseModule,
     TypeOrmModule.forFeature([User]),
+    PassportModule.register({ defaultStrategy: 'jwt-at' }), // Changed from jwt-at to jwt
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
@@ -23,18 +24,12 @@ import { ConfigService } from '@nestjs/config';
         },
       }),
     }),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   providers: [
     AuthService,
     AtStrategy,
     RfStrategy,
-    {
-      provide: 'JWT_REFRESH_TOKEN_SECRET',
-      useFactory: (configService: ConfigService) => 
-        configService.get('JWT_REFRESH_TOKEN_SECRET'),
-      inject: [ConfigService],
-    },
+    ConfigService,
   ],
   controllers: [AuthController],
   exports: [AuthService, JwtModule],
