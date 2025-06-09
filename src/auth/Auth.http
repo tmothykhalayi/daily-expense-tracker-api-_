@@ -39,3 +39,60 @@ Content-Type: application/json
 {
   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDIwNDEsImV4cCI6MTc1MDAwNjg0MX0.dyAbC-pl3wTUCItBydr19VS50BerIRWlJzu4WRGtftQ"
 }
+
+
+
+### Create Admin User
+POST http://localhost:8000/users
+Content-Type: application/json
+
+{
+  "name": "Admin",
+  "email": "admin@school.com",
+  "password": "admin123",
+  "role": "ADMIN"
+}
+
+### Create Faculty User
+POST http://localhost:8000/users
+Content-Type: application/json
+
+{
+  "name": "Faculty",
+  "email": "faculty@school.com",
+  "password": "faculty123",
+  "role": "USER"
+}
+
+### Get Admin Token
+POST http://localhost:8000/auth/signin
+Content-Type: application/json
+
+{
+  "email": "admin@school.com",
+  "password": "admin123"
+}
+
+### Get Faculty Token
+POST http://localhost:8000/auth/signin
+Content-Type: application/json
+
+{
+  "email": "faculty@school.com",
+  "password": "faculty123"
+}
+###
+GET http://localhost:8000/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjczLCJlbWFpbCI6ImFkbWluQHNjaG9vbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk0ODAyODYsImV4cCI6MTc0OTQ4MTE4Nn0.5cWSMal4WmizO5-E3CI6ZCsm3SedAIjDONOO89l23mI
+
+### Faculty can view all profiles (should succeed)
+GET http://localhost:8000/users
+Authorization: Bearer {{faculty_token}}
+
+### Only Admin can delete profiles (should succeed)
+DELETE http://localhost:8000/profiles/1
+Authorization: Bearer {{admin_token}}
+
+### Faculty cannot delete profiles (should return 403)
+DELETE http://localhost:8000/profiles/1
+Authorization: Bearer {{faculty_token}}

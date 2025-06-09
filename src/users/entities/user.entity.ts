@@ -1,13 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-  CreateDateColumn,
-  UpdateDateColumn,
-  BeforeInsert,
-  BeforeUpdate,
-} from 'typeorm';
+import {Entity,PrimaryGeneratedColumn, Column,OneToMany, CreateDateColumn,UpdateDateColumn,BeforeInsert, BeforeUpdate} from 'typeorm';
 import { Expense } from '../../expenses/entities/expense.entity';
 import * as bcrypt from 'bcrypt';
 

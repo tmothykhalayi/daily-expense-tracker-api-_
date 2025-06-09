@@ -8,6 +8,7 @@ import { PassportModule } from '@nestjs/passport';
 import { User } from '../users/entities/user.entity';
 import { AtStrategy, RfStrategy } from './strategies/index'; 
 import { ConfigService } from '@nestjs/config';
+import { RolesGuard } from './guards';
 
 @Global()
 @Module({

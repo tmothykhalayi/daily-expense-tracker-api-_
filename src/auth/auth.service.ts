@@ -9,7 +9,6 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-
 import { CreateAuthDto } from './dto/login.dto';
 import { User } from '../users/entities/user.entity';
 
@@ -27,7 +26,12 @@ export class AuthService {
   // ===== SIGN IN =====
   async signIn(
     createAuthDto: CreateAuthDto,
-  ): Promise<{ user: Partial<User>; accessToken: string; refreshToken: string }> {
+  ): Promise<{
+    user: Partial<User>;
+    accessToken: string;
+    refreshToken: string;
+    role: string | undefined;
+  }> {
     try {
       const user = await this.userRepository.findOne({
         where: { email: createAuthDto.email },
@@ -39,23 +43,22 @@ export class AuthService {
         throw new UnauthorizedException('Invalid credentials');
       }
 
-      const isPasswordValid = await bcrypt.compare(
-        createAuthDto.password,
-        user.password,
-      );
+      const isPasswordValid = await bcrypt.compare(createAuthDto.password, user.password);
       if (!isPasswordValid) {
         this.logger.warn(`Login attempt failed: Invalid password - ${createAuthDto.email}`);
         throw new UnauthorizedException('Invalid credentials');
       }
 
-      const { accessToken, refreshToken } = await this.getTokens(
+      // Fix param order: userId, email, role
+      const { accessToken, refreshToken, role } = await this.getTokens(
         user.id,
         user.email,
+        user.role,
       );
 
       await this.updateRefreshToken(user.id, refreshToken);
 
-      // Create a copy without sensitive fields
+      // Remove sensitive data before returning
       const { password, hashedRefreshToken, ...userWithoutSensitive } = user;
 
       this.logger.log('[AuthService] Tokens generated successfully');
@@ -64,6 +67,7 @@ export class AuthService {
         user: userWithoutSensitive,
         accessToken,
         refreshToken,
+        role,
       };
     } catch (error) {
       this.logger.error(`Sign in error: ${error.message}`);
@@ -76,7 +80,7 @@ export class AuthService {
     try {
       const user = await this.userRepository.findOne({
         where: { id: userId },
-        select: ['id', 'email', 'hashedRefreshToken'],
+        select: ['id', 'email', 'role', 'hashedRefreshToken'],
       });
 
       if (!user) {
@@ -89,17 +93,15 @@ export class AuthService {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
-      const tokenMatches = await bcrypt.compare(
-        refreshToken,
-        user.hashedRefreshToken,
-      );
+      const tokenMatches = await bcrypt.compare(refreshToken, user.hashedRefreshToken);
 
       if (!tokenMatches) {
         this.logger.warn(`Refresh failed: Token mismatch - ID: ${userId}`);
         throw new UnauthorizedException('Invalid refresh token');
       }
 
-      const tokens = await this.getTokens(user.id, user.email);
+      // Fix param order: userId, email, role
+      const tokens = await this.getTokens(user.id, user.email, user.role);
       await this.updateRefreshToken(user.id, tokens.refreshToken);
 
       return tokens;
@@ -124,18 +126,14 @@ export class AuthService {
   // ===== SIGN OUT =====
   async signOut(userId: number) {
     try {
-      const user = await this.userRepository.findOne({
-        where: { id: userId },
-      });
+      const user = await this.userRepository.findOne({ where: { id: userId } });
 
       if (!user) {
         this.logger.warn(`Signout failed: User not found - ID: ${userId}`);
         throw new NotFoundException(`User not found: ${userId}`);
       }
 
-      await this.userRepository.update(userId, {
-        hashedRefreshToken: null,
-      });
+      await this.userRepository.update(userId, { hashedRefreshToken: null });
 
       return { message: 'Successfully signed out' };
     } catch (error) {
@@ -145,17 +143,21 @@ export class AuthService {
   }
 
   // ===== GET TOKENS =====
-  private async getTokens(userId: number, email: string) {
+  private async getTokens(
+    userId: number,
+    email: string,
+    role: string,
+  ): Promise<{ accessToken: string; refreshToken: string; role: string | undefined }> {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
-        { sub: userId, email },
+        { sub: userId, email, role },
         {
           secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
           expiresIn: '15m',
         },
       ),
       this.jwtService.signAsync(
-        { sub: userId, email },
+        { sub: userId, email, role },
         {
           secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
           expiresIn: '7d',
@@ -163,20 +165,19 @@ export class AuthService {
       ),
     ]);
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, role };
   }
- // ===== UPDATE REFRESH TOKEN =====
-private async updateRefreshToken(userId: number, refreshToken: string) {
-  const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-  this.logger.log(`Hashing and updating refresh token for user ID: ${userId}`);
 
-  const result = await this.userRepository.update(userId, { hashedRefreshToken });
-  this.logger.log(`Update result: ${JSON.stringify(result)}`);
+  // ===== UPDATE REFRESH TOKEN =====
+  private async updateRefreshToken(userId: number, refreshToken: string) {
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    this.logger.log(`Hashing and updating refresh token for user ID: ${userId}`);
 
-  if (result.affected === 0) {
-    this.logger.warn(`Failed to update refresh token hash for user ID: ${userId}`);
-  } else {
-    this.logger.log(`Refresh token hash updated successfully for user ID: ${userId}`);
+    const result = await this.userRepository.update(userId, { hashedRefreshToken });
+    if (result.affected === 0) {
+      this.logger.warn(`Failed to update refresh token hash for user ID: ${userId}`);
+    } else {
+      this.logger.log(`Refresh token hash updated successfully for user ID: ${userId}`);
+    }
   }
-}
 }
