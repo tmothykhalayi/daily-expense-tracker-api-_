@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,67 +19,71 @@ export class UsersService {
     email: string;
     password: string;
     role?: string;
-  }): Promise<User> {
+  }): Promise<Omit<User, 'password'>> {
     // Check if user already exists
     const existingUser = await this.usersRepository.findOne({
       where: { email: user.email },
     });
 
     if (existingUser) {
-      throw new Error('User with this email already exists');
+      throw new ConflictException('User with this email already exists');
     }
 
     const hashedPassword = await bcrypt.hash(user.password, 10);
-    console.log(hashedPassword)
 
     const newUser = this.usersRepository.create({
       name: user.name,
       email: user.email,
-      password: hashedPassword, // Store hashed password
+      password: hashedPassword,
       role: (user.role as UserRole) || UserRole.USER,
-      hashedRefreshToken: 'null',
+      hashedRefreshToken: null,
     });
-    
-  
 
-    // Save the user
     const savedUser = await this.usersRepository.save(newUser);
 
-    // Fetch the complete user with password
-    const completeUser = await this.usersRepository.findOne({
-      where: { id: savedUser.id },
-      select: ['id', 'name', 'email', 'password', 'role', 'hashedRefreshToken'],
-    });
-
-    if (!completeUser) {
-      throw new Error('Failed to create user');
-    }
-
     // Remove password from response
-    const { password, ...result } = completeUser;
-    return result as User;
+    const { password, ...result } = savedUser;
+    return Object.assign(Object.create(Object.getPrototypeOf(savedUser)), result);
   }
 
   // Find all users (excluding password)
-  async findAllUsers(): Promise<User[]> {
-    return this.usersRepository.find({
-      select: [
-        'id',
-        'name',
-        'email',
-        'role',
-        'createdAt',
-        'updatedAt',
-        'hashedRefreshToken',
-      ], 
-    });
+  // Now accepts requesterRole to filter results
+  async findAllUsers(requesterRole: UserRole): Promise<Omit<User, 'password'>[]> {
+    if (requesterRole === UserRole.ADMIN) {
+      // Admin sees all users
+      return this.usersRepository.find({
+        select: [
+          'id',
+          'name',
+          'email',
+          'role',
+          'createdAt',
+          'updatedAt',
+          'hashedRefreshToken',
+        ],
+      });
+    } else {
+      // Non-admins see only users with role USER
+      return this.usersRepository.find({
+        where: { role: UserRole.USER },
+        select: [
+          'id',
+          'name',
+          'email',
+          'role',
+          'createdAt',
+          'updatedAt',
+          'hashedRefreshToken',
+        ],
+      });
+    }
   }
 
-  // Find user by email
+  // Find user by email (including password for auth purposes)
   async findUserByEmail(email: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { email },
-      select: ['id', 'email', 'password', 'name', 'role', 'hashedRefreshToken'], 
+      select: ['id', 'email', 'password', 'name', 'role', 'hashedRefreshToken'],
     });
 
     if (!user) {
@@ -88,9 +92,20 @@ export class UsersService {
     return user;
   }
 
-  // Find user by ID
-  async findUserById(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { id } });
+  // Find user by ID (excluding password)
+  async findUserById(id: number): Promise<Omit<User, 'password'>> {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      select: [
+        'id',
+        'name',
+        'email',
+        'role',
+        'createdAt',
+        'updatedAt',
+        'hashedRefreshToken',
+      ],
+    });
     if (!user) {
       throw new NotFoundException(`User not found with id: ${id}`);
     }
@@ -98,8 +113,14 @@ export class UsersService {
   }
 
   // Update user with password hashing
-  async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.findUserById(id);
+  async updateUser(
+    id: number,
+    updateUserDto: UpdateUserDto,
+  ): Promise<Omit<User, 'password'>> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User not found with id: ${id}`);
+    }
 
     if (updateUserDto.name) user.name = updateUserDto.name;
     if (updateUserDto.email) user.email = updateUserDto.email;
@@ -108,33 +129,49 @@ export class UsersService {
     }
 
     user.updatedAt = new Date();
-    await this.usersRepository.save(user);
+    const updatedUser = await this.usersRepository.save(user);
 
-    //  return the password in the response
-    const { password, ...result } = user;
-    return result as User;
+    const { password, ...result } = updatedUser;
+    return Object.assign(Object.create(Object.getPrototypeOf(updatedUser)), result);
   }
 
-  //  update method
-  async update(id: number, updateFields: Partial<User>): Promise<User> {
-    const user = await this.findUserById(id);
+  // Update user fields (internal helper, assumes partial user object)
+  async update(
+    id: number,
+    updateFields: Partial<User>,
+  ): Promise<Omit<User, 'password'>> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User not found with id: ${id}`);
+    }
+
     Object.assign(user, updateFields);
     user.updatedAt = new Date();
-    await this.usersRepository.save(user);
-    return user;
+    const updatedUser = await this.usersRepository.save(user);
+
+    // Clone the user object without the password to maintain class methods
+    const { password, ...result } = updatedUser;
+    return Object.assign(Object.create(Object.getPrototypeOf(updatedUser)), result);
   }
 
   // Save refresh token (hashed)
-  async saveRefreshToken(userId: number, refreshToken: string): Promise<User> {
+  async saveRefreshToken(
+    userId: number,
+    refreshToken: string,
+  ): Promise<Omit<User, 'password'>> {
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     return this.update(userId, { hashedRefreshToken });
   }
 
   // Delete user
-  async deleteUser(id: number): Promise<User> {
-    const user = await this.findUserById(id);
+  async deleteUser(id: number): Promise<Omit<User, 'password'>> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User not found with id: ${id}`);
+    }
     await this.usersRepository.remove(user);
-    return user;
+
+    const { password, ...result } = user;
+    return Object.assign(Object.create(Object.getPrototypeOf(user)), result);
   }
 }
-

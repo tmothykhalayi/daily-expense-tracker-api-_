@@ -39,17 +39,16 @@ export class AuthService {
       });
 
       if (!user) {
-        this.logger.warn(`Login attempt failed: User not found - ${createAuthDto.email}`);
+        this.logger.warn(`Login failed - user not found: ${createAuthDto.email}`);
         throw new UnauthorizedException('Invalid credentials');
       }
 
       const isPasswordValid = await bcrypt.compare(createAuthDto.password, user.password);
       if (!isPasswordValid) {
-        this.logger.warn(`Login attempt failed: Invalid password - ${createAuthDto.email}`);
+        this.logger.warn(`Login failed - invalid password: ${createAuthDto.email}`);
         throw new UnauthorizedException('Invalid credentials');
       }
 
-      // Fix param order: userId, email, role
       const { accessToken, refreshToken, role } = await this.getTokens(
         user.id,
         user.email,
@@ -58,10 +57,10 @@ export class AuthService {
 
       await this.updateRefreshToken(user.id, refreshToken);
 
-      // Remove sensitive data before returning
+      // Remove sensitive fields before returning user data
       const { password, hashedRefreshToken, ...userWithoutSensitive } = user;
 
-      this.logger.log('[AuthService] Tokens generated successfully');
+      this.logger.log(`User logged in successfully: ${user.email}`);
 
       return {
         user: userWithoutSensitive,
@@ -84,25 +83,25 @@ export class AuthService {
       });
 
       if (!user) {
-        this.logger.warn(`Refresh failed: User not found - ID: ${userId}`);
+        this.logger.warn(`Refresh tokens failed - user not found: ID ${userId}`);
         throw new UnauthorizedException('Invalid refresh token');
       }
 
       if (!user.hashedRefreshToken) {
-        this.logger.warn(`Refresh failed: No refresh token stored - ID: ${userId}`);
+        this.logger.warn(`Refresh tokens failed - no stored refresh token: ID ${userId}`);
         throw new UnauthorizedException('Invalid refresh token');
       }
 
       const tokenMatches = await bcrypt.compare(refreshToken, user.hashedRefreshToken);
-
       if (!tokenMatches) {
-        this.logger.warn(`Refresh failed: Token mismatch - ID: ${userId}`);
+        this.logger.warn(`Refresh tokens failed - token mismatch: ID ${userId}`);
         throw new UnauthorizedException('Invalid refresh token');
       }
 
-      // Fix param order: userId, email, role
       const tokens = await this.getTokens(user.id, user.email, user.role);
       await this.updateRefreshToken(user.id, tokens.refreshToken);
+
+      this.logger.log(`Refresh tokens generated for user ID: ${userId}`);
 
       return tokens;
     } catch (error) {
@@ -118,7 +117,8 @@ export class AuthService {
         secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
       });
       return payload;
-    } catch {
+    } catch (error) {
+      this.logger.warn(`Token validation failed: ${error.message}`);
       throw new UnauthorizedException('Invalid token');
     }
   }
@@ -129,11 +129,13 @@ export class AuthService {
       const user = await this.userRepository.findOne({ where: { id: userId } });
 
       if (!user) {
-        this.logger.warn(`Signout failed: User not found - ID: ${userId}`);
+        this.logger.warn(`Sign out failed - user not found: ID ${userId}`);
         throw new NotFoundException(`User not found: ${userId}`);
       }
 
       await this.userRepository.update(userId, { hashedRefreshToken: null });
+
+      this.logger.log(`User signed out successfully: ID ${userId}`);
 
       return { message: 'Successfully signed out' };
     } catch (error) {
@@ -171,13 +173,13 @@ export class AuthService {
   // ===== UPDATE REFRESH TOKEN =====
   private async updateRefreshToken(userId: number, refreshToken: string) {
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-    this.logger.log(`Hashing and updating refresh token for user ID: ${userId}`);
+    this.logger.log(`Updating hashed refresh token for user ID: ${userId}`);
 
     const result = await this.userRepository.update(userId, { hashedRefreshToken });
     if (result.affected === 0) {
-      this.logger.warn(`Failed to update refresh token hash for user ID: ${userId}`);
+      this.logger.warn(`Failed to update refresh token for user ID: ${userId}`);
     } else {
-      this.logger.log(`Refresh token hash updated successfully for user ID: ${userId}`);
+      this.logger.log(`Refresh token updated successfully for user ID: ${userId}`);
     }
   }
 }

@@ -15,7 +15,7 @@ import { RolesGuard } from './guards';
   imports: [
     DatabaseModule,
     TypeOrmModule.forFeature([User]),
-    PassportModule.register({ defaultStrategy: 'jwt-at' }), // Changed from jwt-at to jwt
+    PassportModule.register({ defaultStrategy: 'jwt-at' }),
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({

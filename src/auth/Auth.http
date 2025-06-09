@@ -83,16 +83,17 @@ Content-Type: application/json
 }
 ###
 GET http://localhost:8000/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjczLCJlbWFpbCI6ImFkbWluQHNjaG9vbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk0ODAyODYsImV4cCI6MTc0OTQ4MTE4Nn0.5cWSMal4WmizO5-E3CI6ZCsm3SedAIjDONOO89l23mI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjczLCJlbWFpbCI6ImFkbWluQHNjaG9vbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk0OTQ2NTUsImV4cCI6MTc0OTQ5NTU1NX0.lUY476nwEceLUPLdabTTSigmt-ITq-Wyw0nc5sudDOI
 
 ### Faculty can view all profiles (should succeed)
 GET http://localhost:8000/users
-Authorization: Bearer {{faculty_token}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjc0LCJlbWFpbCI6ImZhY3VsdHlAc2Nob29sLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzQ5NDkzODUxLCJleHAiOjE3NDk0OTQ3NTF9.gBY7MLyOmMZyb1uZ2BLiCh_aAy6fWNOlTToryHdlRTw
 
 ### Only Admin can delete profiles (should succeed)
-DELETE http://localhost:8000/profiles/1
-Authorization: Bearer {{admin_token}}
+DELETE http://localhost:8000/profiles/68
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjczLCJlbWFpbCI6ImFkbWluQHNjaG9vbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk0ODM1MDIsImV4cCI6MTc0OTQ4NDQwMn0.ocbQNkMxURUAIaMgWkCHpVQbTE1V0EZF57ySQMT7VSM
+
 
 ### Faculty cannot delete profiles (should return 403)
 DELETE http://localhost:8000/profiles/1
-Authorization: Bearer {{faculty_token}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjczLCJlbWFpbCI6ImFkbWluQHNjaG9vbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk0ODQ4MTcsImV4cCI6MTc0OTQ4NTcxN30.pvCdXaDW5X6X6U3g2UiVKl2aWpcThtQFw34egW39HpA
