@@ -1,4 +1,4 @@
-import { IsInt, IsDateString, IsOptional } from 'class-validator';
+import { IsInt, IsDateString, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateReportDto {
@@ -24,4 +24,11 @@ export class CreateReportDto {
   })
   @IsDateString()
   endDate: string;
+
+  @ApiProperty({
+    description: 'The title of the report',
+    example: 'Weekly Sales Report',
+  })
+  @IsString()
+  title: string;
 }

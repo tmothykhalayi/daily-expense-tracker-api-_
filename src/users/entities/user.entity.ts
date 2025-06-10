@@ -1,5 +1,15 @@
-import {Entity,PrimaryGeneratedColumn, Column,OneToMany, CreateDateColumn,UpdateDateColumn,BeforeInsert, BeforeUpdate} from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  BeforeInsert,
+  BeforeUpdate,
+} from 'typeorm';
 import { Expense } from '../../expenses/entities/expense.entity';
+import { Report } from '../../reports/entities/report.entity';
 import * as bcrypt from 'bcrypt';
 
 export enum UserRole {
@@ -12,7 +22,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true, nullable: true })
+  @Column({ nullable: true }) // Removed unique constraint due to nullability
   name: string;
 
   @Column({ unique: true })
@@ -29,8 +39,10 @@ export class User {
   role: UserRole;
 
   @Column({ type: 'text', nullable: true, select: false, default: null })
- hashedRefreshToken: string | null;
+  hashedRefreshToken: string | null;
 
+  @OneToMany(() => Report, report => report.user)
+  reports: Report[];
 
   @OneToMany(() => Expense, expense => expense.user)
   expenses: Expense[];
@@ -42,14 +54,12 @@ export class User {
   updatedAt: Date;
 
   private isPasswordHashed(password: string): boolean {
-    // Basic check for bcrypt hash pattern
     return /^\$2[aby]?\$\d{2}\$/.test(password);
   }
 
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
-    // Only hash if password is set AND not already hashed
     if (this.password && !this.isPasswordHashed(this.password)) {
       this.password = await bcrypt.hash(this.password, 10);
     }
@@ -64,9 +74,7 @@ export class User {
   }
 
   async validateRefreshToken(refreshToken: string): Promise<boolean> {
-    if (!this.hashedRefreshToken) {
-      return false;
-    }
-    return await bcrypt.compare(refreshToken, this.hashedRefreshToken);
+    if (!this.hashedRefreshToken) return false;
+    return bcrypt.compare(refreshToken, this.hashedRefreshToken);
   }
 }

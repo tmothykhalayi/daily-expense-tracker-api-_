@@ -1,29 +1,39 @@
-import { IsInt, IsOptional, IsDateString } from 'class-validator';
+import { IsOptional, Matches } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
-/**
- * Data transfer object for retrieving expense reports.
- * 
- * @class GetReportDto
- * 
- * @property {number} [userId] - Optional. The ID of the user whose reports to retrieve.
- * @ApiProperty({ required: false, type: Number, description: 'ID of the user whose reports to retrieve' })
- * 
- * @property {string} [startDate] - Optional. The start date for the report period (ISO date string).
- * @ApiProperty({ required: false, type: String, description: 'Start date for the report period (ISO date string)' })
- * 
- * @property {string} [endDate] - Optional. The end date for the report period (ISO date string).
- * @ApiProperty({ required: false, type: String, description: 'End date for the report period (ISO date string)' })
- */
+export enum ReportTimeRange {
+  WEEKLY = 'weekly',
+  MONTHLY = 'monthly',
+  YEARLY = 'yearly',
+  CUSTOM = 'custom',
+}
+
 export class GetReportDto {
+  @ApiPropertyOptional({
+    description: 'Time range of the report (weekly, monthly, yearly, custom)',
+    enum: ReportTimeRange,
+    example: 'yearly',
+  })
   @IsOptional()
-  @IsInt()
-  userId?: number;
+  timeRange?: ReportTimeRange;
 
+  @ApiPropertyOptional({
+    description: 'Start date of the report period in YYYY-MM-DD format (no time)',
+    example: '2023-06-11',
+  })
   @IsOptional()
-  @IsDateString()
-  startDate?: string;
+  @Matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/, {
+    message: 'startDate must be in YYYY-MM-DD format',
+  })
+  startDate?: string; // ✅ Changed from Date to string
 
+  @ApiPropertyOptional({
+    description: 'End date of the report period in YYYY-MM-DD format (no time)',
+    example: '2023-06-30',
+  })
   @IsOptional()
-  @IsDateString()
-  endDate?: string;
+  @Matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/, {
+    message: 'endDate must be in YYYY-MM-DD format',
+  })
+  endDate?: string; // ✅ Stay as string
 }

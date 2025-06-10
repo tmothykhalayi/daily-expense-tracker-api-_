@@ -39,7 +39,7 @@ export class UsersController {
       }
     }
   })
-  @ApiResponse({ status: 400, description: 'Invalid input' })
+
   async createUser(@Body() createUserDto: CreateUserDto) {
     this.logger.log(`Creating new user: ${createUserDto.email}`);
     return this.userService.createUser(createUserDto);
@@ -48,12 +48,6 @@ export class UsersController {
   @Get()
   @Roles(Role.ADMIN) // Changed from UserRole.ADMIN to Role.ADMIN
   @ApiOperation({ summary: 'Get all users (Admin only)' })
-  @ApiResponse({ 
-    status: 200, 
-    description: 'List of all users',
-    isArray: true
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
   async findAllUsers(@GetCurrentUser() user) {
     this.logger.log(`Admin ${user.email} requesting all users list`);
     return this.userService.findAllUsers(user.role);
@@ -80,8 +74,6 @@ export class UsersController {
   @Get(':id')
   @ApiOperation({ summary: 'Get user by ID (Admin or own profile)' })
   @ApiParam({ name: 'id', type: 'number' })
-  @ApiResponse({ status: 200, description: 'User profile' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
   async findUserById(
     @Param('id', ParseIntPipe) id: number,
     @GetCurrentUserId() userId: number,
@@ -101,8 +93,6 @@ export class UsersController {
   @ApiOperation({ summary: 'Update user (Admin or own profile)' })
   @ApiParam({ name: 'id', type: 'number' })
   @ApiBody({ type: UpdateUserDto })
-  @ApiResponse({ status: 200, description: 'User updated successfully' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
   async updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
@@ -129,8 +119,6 @@ export class UsersController {
   @Roles(Role.ADMIN) // Changed from UserRole.ADMIN to Role.ADMIN
   @ApiOperation({ summary: 'Delete user (Admin only)' })
   @ApiParam({ name: 'id', type: 'number' })
-  @ApiResponse({ status: 200, description: 'User deleted successfully' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
   async deleteUser(
     @Param('id', ParseIntPipe) id: number, 
     @GetCurrentUser() user

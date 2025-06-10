@@ -74,7 +74,6 @@ export class AuthController {
       },
     },
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async signIn(@Body() createAuthDto: CreateAuthDto) {
     return this.authService.signIn(createAuthDto);
   }
@@ -106,17 +105,7 @@ export class AuthController {
   @Public()
   @UseGuards(RtGuard)
   @Post('refresh')
-  @ApiOperation({ summary: 'Refresh access token' })
-  @ApiResponse({
-    status: 200,
-    description: 'Tokens successfully refreshed',
-    schema: {
-      example: {
-        accessToken: 'eyJhbGciOiJIUzI1...',
-        refreshToken: 'eyJhbGciOiJIUzI1...',
-      },
-    },
-  })
+  
   async refreshTokens(
     @GetCurrentUserId() userId: number,
     @Req() req: RequestWithUser

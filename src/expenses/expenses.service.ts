@@ -29,7 +29,7 @@ export class ExpensesService {
     this.logger.log('Finding all expenses (admin access)');
     return this.expensesRepository.find({
       relations: ['user'],
-      order: { created_at: 'DESC' }
+      order: { createdAt: 'DESC' }
     });
   }
 
@@ -38,7 +38,7 @@ export class ExpensesService {
     return this.expensesRepository.find({
       where: { user: { id: userId } },
       relations: ['user'],
-      order: { created_at: 'DESC' }
+      order: { createdAt: 'DESC' }
     });
   }
 

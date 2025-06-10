@@ -14,7 +14,7 @@ export class CategoriesService {
 
   async createCategory(dto: CreateCategoryDto): Promise<Category> {
     const category = this.categoryRepository.create({
-      name: dto.name,  // assuming dto.name exists
+      name: dto.name,  
     });
     return await this.categoryRepository.save(category);
   }
@@ -50,7 +50,7 @@ export class CategoriesService {
   async findAllByUser(userId: number): Promise<Category[]> {
     return this.categoryRepository.find({
       where: {
-        userId: userId // This should now work with the updated entity
+        userId: userId 
       }
     });
   }

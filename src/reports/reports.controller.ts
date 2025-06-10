@@ -1,13 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, ForbiddenException, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Query, UseGuards, ForbiddenException, Body } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ReportsService } from './reports.service';
-import { CreateReportDto } from './dto/create-report.dto';
-import { UpdateReportDto } from './dto/update-report.dto';
-import { GetReportDto } from './dto/get-report.dto';
-import { Report } from './entities/report.entity';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { GetCurrentUser, GetCurrentUserId } from '../auth/decorators';
 import { AtGuard, RolesGuard } from '../auth/guards';
-import { GetCurrentUserId, GetCurrentUser, Roles } from '../auth/decorators';
 import { Role } from '../auth/enums/role.enum';
+import { GetReportDto, ReportTimeRange } from './dto/get-report.dto';
+import { CreateReportDto } from './dto/create-report.dto';
+import { ReportWithTotals } from './interfaces/report-with-totals.interface';
 
 @Controller('reports')
 @UseGuards(AtGuard, RolesGuard)
@@ -16,85 +15,54 @@ import { Role } from '../auth/enums/role.enum';
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
-  // Create a new report
   @Post()
-  @ApiOperation({ summary: 'Create new report' })
-  @ApiResponse({ status: 201, description: 'Report created successfully' })
+  @ApiOperation({ summary: 'Create a new report' })
+  @ApiResponse({ status: 201, description: 'Report created successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid input.' })
   async createReport(
+    @Body() createReportDto: CreateReportDto,
     @GetCurrentUserId() userId: number,
-    @Body() createReportDto: CreateReportDto
-  ): Promise<Report> {
-    console.log(`[ReportsController] Creating report for user ${userId}`);
-    return this.reportsService.createReport({ ...createReportDto, userId });
-  }
-  
-  // Get all reports
-  @Get()
-  @ApiOperation({ summary: 'Get reports (filtered by user role)' })
-  @ApiResponse({ status: 200, description: 'Returns reports based on user role' })
-  async getReports(
-    @GetCurrentUserId() userId: number,
-    @GetCurrentUser('role') role: Role,
-    @Query() getReportDto: GetReportDto
   ) {
-    console.log(`[ReportsController] Fetching reports for ${role} with ID ${userId}`);
-    if (role === Role.ADMIN) {
-      return this.reportsService.getAllReports(getReportDto);
-    }
+    const reportData = { ...createReportDto, userId };
+    return this.reportsService.createReport(reportData);
+  }
+
+  @Get('weekly')
+  @ApiOperation({ summary: 'Get weekly report' })
+  async getWeeklyReport(@GetCurrentUserId() userId: number): Promise<ReportWithTotals> {
+    return this.reportsService.generateWeeklyReport(userId);
+  }
+
+  @Get('monthly')
+  @ApiOperation({ summary: 'Get monthly report' })
+  async getMonthlyReport(@GetCurrentUserId() userId: number): Promise<ReportWithTotals> {
+    return this.reportsService.generateMonthlyReport(userId);
+  }
+
+  @Get('yearly')
+  @ApiOperation({ summary: 'Get yearly report' })
+  async getYearlyReport(@GetCurrentUserId() userId: number): Promise<ReportWithTotals> {
+    return this.reportsService.generateYearlyReport(userId);
+  }
+
+  @Get('custom')
+  @ApiOperation({ summary: 'Get custom date range report' })
+  async getCustomReport(
+    @GetCurrentUserId() userId: number,
+    @Query() getReportDto: GetReportDto
+  ): Promise<ReportWithTotals[]> {
     return this.reportsService.getUserReports(userId, getReportDto);
   }
 
-  // Get a single report by ID (route param, not query)
-  @Get(':id')
-  @ApiOperation({ summary: 'Get report by ID' })
-  @ApiResponse({ status: 200, description: 'Returns report if authorized' })
-  async getReportById(
-    @Param('id', ParseIntPipe) id: number,
-    @GetCurrentUserId() userId: number,
-    @GetCurrentUser('role') role: Role
-  ): Promise<Report> {
-    console.log(`[ReportsController] Fetching report ${id} for user ${userId}`);
-    const report = await this.reportsService.getReportById(id);
-    
-    if (role !== Role.ADMIN && report.userId !== userId) {
-      console.warn(`[ReportsController] Unauthorized access attempt to report ${id} by user ${userId}`);
-      throw new ForbiddenException('You can only view your own reports');
+  @Get('all')
+  @ApiOperation({ summary: 'Get all reports (Admin only)' })
+  async getAllReports(
+    @GetCurrentUser('role') role: Role,
+    @Query() getReportDto: GetReportDto
+  ) {
+    if (role !== Role.ADMIN) {
+      throw new ForbiddenException('Only admins can access all reports');
     }
-    
-    return report;
-  }
-
-  // Update report partially by ID
-  @Patch(':id')
-  @ApiOperation({ summary: 'Update report' })
-  @ApiResponse({ status: 200, description: 'Report updated successfully' })
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateReportDto: UpdateReportDto,
-    @GetCurrentUserId() userId: number,
-    @GetCurrentUser('role') role: Role
-  ): Promise<Report> {
-    console.log(`[ReportsController] Updating report ${id} by user ${userId}`);
-    const report = await this.reportsService.getReportById(id);
-    
-    if (role !== Role.ADMIN && report.userId !== userId) {
-      console.warn(`[ReportsController] Unauthorized update attempt to report ${id} by user ${userId}`);
-      throw new ForbiddenException('You can only update your own reports');
-    }
-    
-    return this.reportsService.update(id, updateReportDto);
-  }
-
-  // Delete report by ID
-  @Delete(':id')
-  @Roles(Role.ADMIN)
-  @ApiOperation({ summary: 'Delete report (Admin only)' })
-  @ApiResponse({ status: 200, description: 'Report deleted successfully' })
-  async remove(
-    @Param('id', ParseIntPipe) id: number,
-    @GetCurrentUser('role') role: Role
-  ): Promise<void> {
-    console.log(`[ReportsController] Admin deleting report ${id}`);
-    return this.reportsService.remove(id);
+    return this.reportsService.getAllReports(getReportDto);
   }
 }

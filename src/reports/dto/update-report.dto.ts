@@ -43,3 +43,20 @@ export class UpdateReportDto extends PartialType(CreateReportDto) {
   @IsDateString()
   generatedAt?: string;
 }
+
+import { Transform } from 'class-transformer';
+import { Matches } from 'class-validator';
+
+export class GetUserReportDto {
+  @Transform(({ value }) => `${value}-01`) // Append day to convert to valid Date
+  @Matches(/^\d{4}-(0[1-9]|1[0-2])$/, {
+    message: 'startDate must be in YYYY-MM format',
+  })
+  startDate: string;
+
+  @Transform(({ value }) => `${value}-01`) // Append day to convert to valid Date
+  @Matches(/^\d{4}-(0[1-9]|1[0-2])$/, {
+    message: 'endDate must be in YYYY-MM format',
+  })
+  endDate: string;
+}
