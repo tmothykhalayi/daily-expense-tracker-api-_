@@ -14,17 +14,31 @@ export class ReportsService {
   ) {}
 
   async createReport(createReportDto: CreateReportDto): Promise<Report> {
+    console.log('[ReportsService] Creating new report:', createReportDto);
     const report = this.reportsRepository.create(createReportDto);
     return this.reportsRepository.save(report);
   }
 
   async getAllReports(getReportDto: GetReportDto): Promise<Report[]> {
+    console.log('[ReportsService] Getting all reports with filters:', getReportDto);
     const query = this.reportsRepository.createQueryBuilder('report');
     
-    if (getReportDto.userId) {
-      query.andWhere('report.userId = :userId', { userId: getReportDto.userId });
-    }
+    this.applyFilters(query, getReportDto);
     
+    return query.getMany();
+  }
+
+  async getUserReports(userId: number, getReportDto: GetReportDto): Promise<Report[]> {
+    console.log(`[ReportsService] Getting reports for user ${userId}`);
+    const query = this.reportsRepository.createQueryBuilder('report')
+      .where('report.userId = :userId', { userId });
+    
+    this.applyFilters(query, getReportDto);
+    
+    return query.getMany();
+  }
+
+  private applyFilters(query: any, getReportDto: GetReportDto) {
     if (getReportDto.startDate) {
       query.andWhere('report.startDate >= :startDate', { startDate: getReportDto.startDate });
     }
@@ -33,10 +47,11 @@ export class ReportsService {
       query.andWhere('report.endDate <= :endDate', { endDate: getReportDto.endDate });
     }
     
-    return query.getMany();
+    query.orderBy('report.createdAt', 'DESC');
   }
 
   async getReportById(id: number): Promise<Report> {
+    console.log(`[ReportsService] Getting report by ID: ${id}`);
     const report = await this.reportsRepository.findOneBy({ id });
     if (!report) {
       throw new NotFoundException(`Report with ID ${id} not found`);
@@ -45,12 +60,14 @@ export class ReportsService {
   }
 
   async update(id: number, updateReportDto: UpdateReportDto): Promise<Report> {
+    console.log(`[ReportsService] Updating report ${id}:`, updateReportDto);
     const report = await this.getReportById(id);
     Object.assign(report, updateReportDto);
     return this.reportsRepository.save(report);
   }
 
   async remove(id: number): Promise<void> {
+    console.log(`[ReportsService] Deleting report ${id}`);
     const result = await this.reportsRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Report with ID ${id} not found`);

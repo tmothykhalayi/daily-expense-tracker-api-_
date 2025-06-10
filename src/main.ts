@@ -48,15 +48,15 @@ async function bootstrap() {
 
 const config = new DocumentBuilder()
   .setTitle('Daily Expense Tracker API')
-  .setDescription('API for tracking daily expenses and managing personal finance' )
-     .setVersion('1.0')
-    .addTag('expenses', 'Manage expense records')
-    .addTag('users', 'User management operations')
-    .addTag('categories', 'Expense categories management')
-    .addTag('reports', 'Generate expense reports')
-    .addBearerAuth()
-    .addServer('http://localhost:8000', 'Development Server')
-    .build();
+  .setDescription('API for tracking daily expenses and managing personal finance')
+  .setVersion('1.0')
+  .addTag('expenses', 'Manage expense records')
+  .addTag('users', 'User management operations (Admin only)')
+  .addTag('categories', 'Expense categories management')
+  .addTag('reports', 'Generate expense reports')
+  .addBearerAuth()
+  .addServer('http://localhost:8000', 'Development Server')
+  .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document, {
@@ -81,4 +81,3 @@ bootstrap();
 
 
 
- 

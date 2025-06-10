@@ -14,7 +14,13 @@ import { CreateAuthDto } from './dto/login.dto';
 import { Public } from './decorators/public.decorator';
 import { GetCurrentUserId } from './decorators/get-current-user-id.decorator';
 import { AtGuard, RtGuard } from './guards';
-import { ApiBearerAuth, ApiTags, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiBody,
+} from '@nestjs/swagger';
 
 // Custom interface to include user payload from JWT
 export interface RequestWithUser extends Request {
@@ -33,7 +39,42 @@ export class AuthController {
   // ===== SIGN IN =====
   @Public()
   @Post('signin')
-  @ApiBody({ type: CreateAuthDto })  // <-- Added this decorator here
+  @ApiOperation({ summary: 'Sign in user' })
+  @ApiBody({
+    type: CreateAuthDto,
+    examples: {
+      user1: {
+        value: {
+          email: 'user@example.com',
+          password: 'StrongP@ss123',
+        },
+        summary: 'Basic user credentials',
+      },
+      user2: {
+        value: {
+          email: 'admin@example.com',
+          password: 'AdminP@ss123',
+        },
+        summary: 'Admin credentials',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User successfully signed in',
+    schema: {
+      example: {
+        user: {
+          id: 1,
+          email: 'user@example.com',
+          role: 'USER',
+        },
+        accessToken: 'eyJhbGciOiJIUzI1...',
+        refreshToken: 'eyJhbGciOiJIUzI1...',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async signIn(@Body() createAuthDto: CreateAuthDto) {
     return this.authService.signIn(createAuthDto);
   }
@@ -41,6 +82,16 @@ export class AuthController {
   // ===== SIGN OUT =====
   @UseGuards(AtGuard)
   @Post('signout/:id')
+  @ApiOperation({ summary: 'Sign out user' })
+  @ApiResponse({
+    status: 200,
+    description: 'User successfully signed out',
+    schema: {
+      example: {
+        message: 'Successfully signed out',
+      },
+    },
+  })
   async signOut(
     @GetCurrentUserId() userId: number,
     @Param('id', ParseIntPipe) id: number
@@ -55,6 +106,17 @@ export class AuthController {
   @Public()
   @UseGuards(RtGuard)
   @Post('refresh')
+  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Tokens successfully refreshed',
+    schema: {
+      example: {
+        accessToken: 'eyJhbGciOiJIUzI1...',
+        refreshToken: 'eyJhbGciOiJIUzI1...',
+      },
+    },
+  })
   async refreshTokens(
     @GetCurrentUserId() userId: number,
     @Req() req: RequestWithUser

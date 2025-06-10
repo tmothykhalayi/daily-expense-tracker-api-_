@@ -14,7 +14,7 @@ export class CategoriesService {
 
   async createCategory(dto: CreateCategoryDto): Promise<Category> {
     const category = this.categoryRepository.create({
-      category_name: dto.name,  // assuming dto.name exists
+      name: dto.name,  // assuming dto.name exists
     });
     return await this.categoryRepository.save(category);
   }
@@ -24,7 +24,7 @@ export class CategoriesService {
   }
 
   async findCategoryById(id: number): Promise<Category> {
-    const category = await this.categoryRepository.findOneBy({ category_id: id });
+    const category = await this.categoryRepository.findOneBy({ id: id });
     if (!category) {
       throw new NotFoundException(`Category with id ${id} not found`);
     }
@@ -34,7 +34,7 @@ export class CategoriesService {
   async updateCategory(id: number, dto: UpdateCategoryDto): Promise<Category> {
     const category = await this.findCategoryById(id);
     if (dto.name) {
-      category.category_name = dto.name;
+      category.name = dto.name;
     }
     return await this.categoryRepository.save(category);
   }
@@ -44,5 +44,14 @@ export class CategoriesService {
     if (result.affected === 0) {
       throw new NotFoundException(`Category with id ${id} not found`);
     }
+  }
+
+
+  async findAllByUser(userId: number): Promise<Category[]> {
+    return this.categoryRepository.find({
+      where: {
+        userId: userId // This should now work with the updated entity
+      }
+    });
   }
 }

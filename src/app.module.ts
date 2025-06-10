@@ -85,8 +85,12 @@ import { AtGuard } from './auth/guards';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        ttl: config.get('THROTTLE_TTL', 60), // Time window in seconds
-        limit: config.get('THROTTLE_LIMIT', 5), // Max number of requests in time window
+        throttlers: [
+          {
+            ttl: config.get('THROTTLE_TTL', 60), // Time window in seconds
+            limit: config.get('THROTTLE_LIMIT', 5), // Max number of requests in time window
+          },
+        ],
       }),
     }),
 
