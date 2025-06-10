@@ -4,8 +4,12 @@ import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 import { GetReportDto } from './dto/get-report.dto';
 import { Report } from './entities/report.entity'; 
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('reports')
+@ApiBearerAuth()
+@ApiTags('reports')
+
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 

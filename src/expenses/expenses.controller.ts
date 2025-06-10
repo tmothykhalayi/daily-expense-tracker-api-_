@@ -1,5 +1,5 @@
 import { Controller, Get, Post,Patch, Body, Param, Delete, Put } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { ExpensesService } from './expenses.service';
 import { Expense } from './entities/expense.entity';
 import { CreateExpenseDto } from './dto/create-expense.dto';
@@ -8,6 +8,7 @@ import { Public, GetCurrentUser, GetCurrentUserId } from '../auth/decorators'; /
 
 
 @ApiTags('expenses')
+@ApiBearerAuth()
 @Controller('expenses')
 export class ExpensesController {
   constructor(private readonly expensesService: ExpensesService) {}

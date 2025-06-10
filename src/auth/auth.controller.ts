@@ -14,6 +14,7 @@ import { CreateAuthDto } from './dto/login.dto';
 import { Public } from './decorators/public.decorator';
 import { GetCurrentUserId } from './decorators/get-current-user-id.decorator';
 import { AtGuard, RtGuard } from './guards';
+import { ApiBearerAuth, ApiTags, ApiBody } from '@nestjs/swagger';
 
 // Custom interface to include user payload from JWT
 export interface RequestWithUser extends Request {
@@ -23,6 +24,8 @@ export interface RequestWithUser extends Request {
   };
 }
 
+@ApiBearerAuth()
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -30,6 +33,7 @@ export class AuthController {
   // ===== SIGN IN =====
   @Public()
   @Post('signin')
+  @ApiBody({ type: CreateAuthDto })  // <-- Added this decorator here
   async signIn(@Body() createAuthDto: CreateAuthDto) {
     return this.authService.signIn(createAuthDto);
   }

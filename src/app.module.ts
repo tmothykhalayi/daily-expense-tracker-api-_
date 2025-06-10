@@ -1,13 +1,25 @@
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+} from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule, CacheInterceptor } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
+import { APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
+import {
+  ThrottlerGuard,
+  ThrottlerModule,
+  ThrottlerException,
+} from '@nestjs/throttler';
 
+// Controllers & Services
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+
+// Modules
 import { UsersModule } from './users/users.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ExpensesModule } from './expenses/expenses.module';
@@ -15,9 +27,13 @@ import { ReportsModule } from './reports/reports.module';
 import { SeedModule } from './seed/seed.module';
 import { DatabaseModule } from './database/database.module';
 import { LogsModule } from './logs/logs.module';
-import { LoggerMiddle } from './logger.middle';
-import { CachingModule } from './caching/caching.module';
 import { AuthModule } from './auth/auth.module';
+
+// Middleware
+import { LoggerMiddle } from './logger.middle';
+
+// Guards
+import { AtGuard } from './auth/guards';
 
 @Module({
   imports: [
@@ -31,36 +47,47 @@ import { AuthModule } from './auth/auth.module';
       inject: [ConfigService],
       isGlobal: true,
       useFactory: (configService: ConfigService) => {
-        // Try to get REDIS_URL or fallback to localhost without auth
         const redisUrl =
           configService.get<string>('REDIS_URL') || 'redis://localhost:6379';
-
         return {
-          ttl: 60, // cache TTL in seconds
+          ttl: 60,
           store: redisStore,
           url: redisUrl,
         };
       },
     }),
 
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'B3YOND',
-      database: 'expensetracker',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'postgres',
+        host: config.get<string>('DB_HOST', 'localhost'),
+        port: parseInt(config.get<string>('DB_PORT', '5432')),
+        username: config.get<string>('DB_USER', 'postgres'),
+        password: config.get<string>('DB_PASS', 'B3YOND'),
+        database: config.get<string>('DB_NAME', 'expensetracker'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true,
+      }),
     }),
 
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get('JWT_ACCESS_TOKEN_SECRET'),
+        secret: configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
         signOptions: { expiresIn: '15m' },
       }),
       inject: [ConfigService],
+    }),
+
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        ttl: config.get('THROTTLE_TTL', 60), // Time window in seconds
+        limit: config.get('THROTTLE_LIMIT', 5), // Max number of requests in time window
+      }),
     }),
 
     UsersModule,
@@ -70,15 +97,26 @@ import { AuthModule } from './auth/auth.module';
     SeedModule,
     DatabaseModule,
     LogsModule,
-    CachingModule,
     AuthModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
+
+    // Global Interceptors
     {
       provide: APP_INTERCEPTOR,
       useClass: CacheInterceptor,
+    },
+
+    // Global Guards (order matters)
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AtGuard,
     },
   ],
 })

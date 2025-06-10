@@ -4,8 +4,17 @@ Content-Type: application/json
 
 {
     "name": "luke smith",
-    "email": "lukesmith@gmail.com",
-    "password": "password123",
+    "password": "password123"
+}
+###
+# 1. Create test user
+POST http://localhost:8000/users
+Content-Type: application/json
+
+{
+    "name": "eliud karanja",
+    "email": "eliudkaranja@gmail.com",
+    "password": "karanja123",
     "role": "USER"
 }
 
@@ -14,26 +23,24 @@ POST http://localhost:8000/auth/signin
 Content-Type: application/json
 
 {
-    "email": "lukesmith@gmail.com",
-    "password": "password123"
+    "email": "ThadeausManya@user.com",
+    "password": "Manya123"
 }
 
 ### 3. Store tokens from signin response (update manually after login)
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDI5NjksImV4cCI6MTc0OTQwMzg2OX0.Xugcwz6Kf0l8pixh7MZdVDsYqUkGLjt5QCFZ5JrztCg
-@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDI5NjksImV4cCI6MTc1MDAwNzc2OX0.F_y8ILDuFOSF_iv5VG6P47_oLTTBEl9_clhF1hcTtFk
+@accessToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc0OTUzMTE4OSwiZXhwIjoxNzQ5NTMyMDg5fQ.aZGOjHfpZSzD-2t9HJD0Xql9KlqTqKrSnS-Ftr6YzwU
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc0OTUzMTE4OSwiZXhwIjoxNzUwMTM1OTg5fQ.c81Aoekgm5DjLGky2l1BNkZkOEVkTBFkqrDSJLeLTnM
 @userId = 72
 
 ### 4. Test protected route
 GET http://localhost:8000/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDIwNDEsImV4cCI6MTc0OTQwMjk0MX0.NEnerKoiQUhQjEkln3ZP8nbjKYmk5sTXUSx55lOSkGk
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc0OTU1NjU5NiwiZXhwIjoxNzQ5NTU3NDk2fQ.S2bOUJBmN8FtNKtuhi6bapXz7KjzdOwCa2QZUkky8k0
 ### 5. Refresh tokens
 POST http://localhost:8000/auth/refresh
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDI5NjksImV4cCI6MTc1MDAwNzc2OX0.F_y8ILDuFOSF_iv5VG6P47_oLTTBEl9_clhF1hcTtFk
-
+Authorization: Bearer 
 ### 6. Sign out
 POST http://localhost:8000/auth/signout/72
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDMyNzMsImV4cCI6MTc0OTQwNDE3M30.NZeB4sGLxLBfDsxCgSDeqsoWINkso_zFVI5alW3wB54
+Authorization: Bearer  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc0OTUzMTE4OSwiZXhwIjoxNzQ5NTMyMDg5fQ.aZGOjHfpZSzD-2t9HJD0Xql9KlqTqKrSnS-Ftr6YzwU
 Content-Type: application/json
 
 {
@@ -83,11 +90,11 @@ Content-Type: application/json
 }
 ###
 GET http://localhost:8000/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjczLCJlbWFpbCI6ImFkbWluQHNjaG9vbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk0OTQ2NTUsImV4cCI6MTc0OTQ5NTU1NX0.lUY476nwEceLUPLdabTTSigmt-ITq-Wyw0nc5sudDOI
+Authorization: Bearer  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjczLCJlbWFpbCI6ImFkbWluQHNjaG9vbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk1NTI3MzYsImV4cCI6MTc0OTU1MzYzNn0.jHzq-UVQgpPgjQEqvE_DDMF6-EXUMgQRBIpuhoZ4HLU
 
 ### Faculty can view all profiles (should succeed)
 GET http://localhost:8000/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjc0LCJlbWFpbCI6ImZhY3VsdHlAc2Nob29sLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzQ5NDkzODUxLCJleHAiOjE3NDk0OTQ3NTF9.gBY7MLyOmMZyb1uZ2BLiCh_aAy6fWNOlTToryHdlRTw
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjc0LCJlbWFpbCI6ImZhY3VsdHlAc2Nob29sLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzQ5NTUzMDA2LCJleHAiOjE3NDk1NTM5MDZ9.68C1FJa6XJn2oKTTXZZ8V4Jor2OXp21mzeYcSeObU24
 
 ### Only Admin can delete profiles (should succeed)
 DELETE http://localhost:8000/profiles/68

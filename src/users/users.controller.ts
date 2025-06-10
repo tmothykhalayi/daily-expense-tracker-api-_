@@ -4,10 +4,12 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Public, Roles, GetCurrentUser, GetCurrentUserId } from '../auth/decorators';
 import { UserRole } from './entities/user.entity';
-
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AtGuard, RolesGuard } from '../auth/guards';
 
 @Controller('users')
+@ApiBearerAuth()
+@ApiTags('users')
 @UseGuards(AtGuard, RolesGuard)
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
