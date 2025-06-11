@@ -15,7 +15,7 @@ export enum ReportType {
   WEEKLY = 'WEEKLY',
   MONTHLY = 'MONTHLY',
   YEARLY = 'YEARLY',
-  CUSTOM = 'CUSTOM',
+  DAILY = 'DAILY'
 
 }
 
@@ -33,7 +33,7 @@ export class Report {
   @Column({
     type: 'enum',
     enum: ReportType,
-    default: ReportType.CUSTOM,
+    default: ReportType.DAILY,
   })
   type: ReportType;
 

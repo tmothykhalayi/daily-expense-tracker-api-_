@@ -1,39 +1,42 @@
-import { IsOptional, Matches } from 'class-validator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsOptional, IsInt, Min, Max } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export enum ReportTimeRange {
-  WEEKLY = 'weekly',
-  MONTHLY = 'monthly',
-  YEARLY = 'yearly',
-  CUSTOM = 'custom',
+  DAILY = 'DAILY',
+  WEEKLY = 'WEEKLY',
+  MONTHLY = 'MONTHLY',
+  YEARLY = 'YEARLY'
 }
 
 export class GetReportDto {
-  @ApiPropertyOptional({
-    description: 'Time range of the report (weekly, monthly, yearly, custom)',
-    enum: ReportTimeRange,
-    example: 'yearly',
-  })
-  @IsOptional()
-  timeRange?: ReportTimeRange;
+  @ApiProperty({ enum: ReportTimeRange })
+  @IsEnum(ReportTimeRange)
+  timeRange: ReportTimeRange;
 
-  @ApiPropertyOptional({
-    description: 'Start date of the report period in YYYY-MM-DD format (no time)',
-    example: '2023-06-11',
-  })
-  @IsOptional()
-  @Matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/, {
-    message: 'startDate must be in YYYY-MM-DD format',
-  })
-  startDate?: string; // ✅ Changed from Date to string
+  @ApiProperty({ example: 2024 })
+  @IsInt()
+  @Min(2000)
+  @Max(2100)
+  year: number;
 
-  @ApiPropertyOptional({
-    description: 'End date of the report period in YYYY-MM-DD format (no time)',
-    example: '2023-06-30',
-  })
+  @ApiProperty({ required: false })
   @IsOptional()
-  @Matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/, {
-    message: 'endDate must be in YYYY-MM-DD format',
-  })
-  endDate?: string; // ✅ Stay as string
+  @IsInt()
+  @Min(1)
+  @Max(12)
+  month?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(53)
+  week?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(31)
+  day?: number;
 }

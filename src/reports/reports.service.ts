@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   Logger,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
@@ -73,13 +74,60 @@ export class ReportsService {
     }
   }
 
-  async generateWeeklyReport(userId: number): Promise<ReportWithTotals> {
-    this.logger.log(`Generating weekly report for user ${userId}`);
-    const { startDate, endDate } = this.getDateRangeForTimeRange(ReportTimeRange.WEEKLY);
-
-    // Normalize time boundaries
+  async generateDailyReport(userId: number, year: number, month: number, day: number): Promise<ReportWithTotals> {
+    const startDate = new Date(year, month - 1, day);
+    const endDate = new Date(year, month - 1, day);
     this.normalizeStartEndDates(startDate, endDate);
 
+    return this.generateReport(userId, startDate, endDate, ReportType.DAILY);
+  }
+
+  async generateWeeklyReport(userId: number, year: number, week: number): Promise<ReportWithTotals> {
+    const startDate = this.getDateOfWeek(week, year);
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6);
+    this.normalizeStartEndDates(startDate, endDate);
+
+    return this.generateReport(userId, startDate, endDate, ReportType.WEEKLY);
+  }
+
+  async generateMonthlyReport(userId: number, year: number, month: number): Promise<ReportWithTotals> {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0);
+    this.normalizeStartEndDates(startDate, endDate);
+
+    return this.generateReport(userId, startDate, endDate, ReportType.MONTHLY);
+  }
+
+  async generateYearlyReport(userId: number, year: number): Promise<ReportWithTotals> {
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year, 11, 31);
+    this.normalizeStartEndDates(startDate, endDate);
+
+    return this.generateReport(userId, startDate, endDate, ReportType.YEARLY);
+  }
+
+  async getAllReportsByYear(userId: number, year: number): Promise<Report[]> {
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year, 11, 31);
+    this.normalizeStartEndDates(startDate, endDate);
+
+    return this.reportsRepository.find({
+      where: {
+        userId,
+        startDate: Between(startDate, endDate)
+      },
+      relations: ['expenses', 'expenses.category'],
+      order: { startDate: 'DESC' }
+    });
+  }
+
+  private async generateReport(
+    userId: number, 
+    startDate: Date, 
+    endDate: Date, 
+    type: ReportType
+  ): Promise<ReportWithTotals> {
     const expenses = await this.expensesRepository.find({
       where: {
         userId,
@@ -90,8 +138,8 @@ export class ReportsService {
 
     const report = this.reportsRepository.create({
       userId,
-      title: `Weekly Report ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`,
-      type: ReportType.WEEKLY,
+      title: `${type} Report ${startDate.toLocaleDateString()}`,
+      type,
       startDate,
       endDate,
     });
@@ -105,66 +153,10 @@ export class ReportsService {
     };
   }
 
-  async generateMonthlyReport(userId: number): Promise<ReportWithTotals> {
-    this.logger.log(`Generating monthly report for user ${userId}`);
-    const { startDate, endDate } = this.getDateRangeForTimeRange(ReportTimeRange.MONTHLY);
-
-    this.normalizeStartEndDates(startDate, endDate);
-
-    const expenses = await this.expensesRepository.find({
-      where: {
-        userId,
-        date: Between(startDate, endDate),
-      },
-      relations: ['category'],
-    });
-
-    const report = this.reportsRepository.create({
-      userId,
-      title: `Monthly Report ${startDate.toLocaleDateString()}`,
-      type: ReportType.MONTHLY,
-      startDate,
-      endDate,
-    });
-
-    await this.reportsRepository.save(report);
-
-    return {
-      ...report,
-      expenses,
-      ...this.calculateTotals(expenses, startDate, endDate),
-    };
-  }
-
-  async generateYearlyReport(userId: number): Promise<ReportWithTotals> {
-    this.logger.log(`Generating yearly report for user ${userId}`);
-    const { startDate, endDate } = this.getDateRangeForTimeRange(ReportTimeRange.YEARLY);
-
-    this.normalizeStartEndDates(startDate, endDate);
-
-    const expenses = await this.expensesRepository.find({
-      where: {
-        userId,
-        date: Between(startDate, endDate),
-      },
-      relations: ['category'],
-    });
-
-    const report = this.reportsRepository.create({
-      userId,
-      title: `Yearly Report ${startDate.getFullYear()}`,
-      type: ReportType.YEARLY,
-      startDate,
-      endDate,
-    });
-
-    await this.reportsRepository.save(report);
-
-    return {
-      ...report,
-      expenses,
-      ...this.calculateTotals(expenses, startDate, endDate),
-    };
+  private getDateOfWeek(week: number, year: number): Date {
+    const date = new Date(year, 0, 1);
+    date.setDate(date.getDate() + (week - 1) * 7);
+    return date;
   }
 
   private calculateReportTotals(reports: Report[]): ReportWithTotals[] {
@@ -207,53 +199,57 @@ export class ReportsService {
   }
 
   private applyFilters(query: any, getReportDto: GetReportDto) {
-    if (getReportDto.timeRange && getReportDto.timeRange !== ReportTimeRange.CUSTOM) {
-      const { startDate, endDate } = this.getDateRangeForTimeRange(getReportDto.timeRange);
-      const normalizedStart = new Date(startDate);
-      const normalizedEnd = new Date(endDate);
-      normalizedStart.setHours(0, 0, 0, 0);
-      normalizedEnd.setHours(23, 59, 59, 999);
-
-      query.andWhere('report.startDate >= :startDate AND report.endDate <= :endDate', {
-        startDate: normalizedStart,
-        endDate: normalizedEnd,
-      });
-    } else {
-      const { startDate, endDate } = this.normalizeDateRange(getReportDto.startDate, getReportDto.endDate);
-
-      if (startDate) {
-        query.andWhere('report.startDate >= :startDate', { startDate });
-      }
-      if (endDate) {
-        query.andWhere('report.endDate <= :endDate', { endDate });
-      }
-    }
+    const { startDate, endDate } = this.getDateRangeFromDto(getReportDto);
+    
+    query.andWhere('report.startDate >= :startDate AND report.endDate <= :endDate', {
+      startDate,
+      endDate,
+    });
 
     query.orderBy('report.createdAt', 'DESC');
   }
 
-  private getDateRangeForTimeRange(timeRange: ReportTimeRange): { startDate: Date; endDate: Date } {
-    const now = new Date();
-    const endDate = new Date();
-    let startDate = new Date();
+  private getDateRangeFromDto(dto: GetReportDto): { startDate: Date; endDate: Date } {
+    const now = new Date(dto.year, 0);
+    let startDate: Date;
+    let endDate: Date;
 
-    switch (timeRange) {
+    switch (dto.timeRange) {
+      case ReportTimeRange.DAILY:
+        if (!dto.month || !dto.day) {
+          throw new BadRequestException('Month and day are required for daily reports');
+        }
+        startDate = new Date(dto.year, dto.month - 1, dto.day);
+        endDate = new Date(dto.year, dto.month - 1, dto.day);
+        break;
+
       case ReportTimeRange.WEEKLY:
-        startDate.setDate(now.getDate() - now.getDay());
+        if (!dto.week) {
+          throw new BadRequestException('Week number is required for weekly reports');
+        }
+        startDate = this.getDateOfWeek(dto.week, dto.year);
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6);
         break;
+
       case ReportTimeRange.MONTHLY:
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        if (!dto.month) {
+          throw new BadRequestException('Month is required for monthly reports');
+        }
+        startDate = new Date(dto.year, dto.month - 1, 1);
+        endDate = new Date(dto.year, dto.month, 0);
         break;
+
       case ReportTimeRange.YEARLY:
-        startDate = new Date(now.getFullYear(), 0, 1);
+        startDate = new Date(dto.year, 0, 1);
+        endDate = new Date(dto.year, 11, 31);
         break;
+
       default:
-        startDate.setDate(now.getDate() - 30);
+        throw new BadRequestException('Invalid report time range');
     }
 
-    startDate.setHours(0, 0, 0, 0);
-    endDate.setHours(23, 59, 59, 999);
-
+    this.normalizeStartEndDates(startDate, endDate);
     return { startDate, endDate };
   }
 
