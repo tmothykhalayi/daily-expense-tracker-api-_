@@ -35,7 +35,8 @@ export class AuthService {
     try {
       const user = await this.userRepository.findOne({
         where: { email: createAuthDto.email },
-        select: ['id', 'email', 'password', 'name', 'role', 'hashedRefreshToken'],
+    
+      select: ['id', 'email', 'password', 'name', 'role', 'hashedRefreshToken'],
       });
 
       if (!user) {
@@ -43,6 +44,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid credentials');
       }
 
+      // Compare against 'user.password' which contains the hashed password
       const isPasswordValid = await bcrypt.compare(createAuthDto.password, user.password);
       if (!isPasswordValid) {
         this.logger.warn(`Login failed - invalid password: ${createAuthDto.email}`);
@@ -57,7 +59,7 @@ export class AuthService {
 
       await this.updateRefreshToken(user.id, refreshToken);
 
-      // Remove sensitive fields before returning user data
+      // Destructure password and hashedRefreshToken to remove sensitive data
       const { password, hashedRefreshToken, ...userWithoutSensitive } = user;
 
       this.logger.log(`User logged in successfully: ${user.email}`);

@@ -1,15 +1,19 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ReportsController } from './reports.controller';
 import { ReportsService } from './reports.service';
+import { ReportsController } from './reports.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { Report } from './entities/report.entity';
-import { Expense } from '../expenses/entities/expense.entity';
-import { Category } from '../categories/entities/category.entity';
+import { DatabaseModule } from 'src/database/database.module';
+import { Expense } from 'src/expenses/entities/expense.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Report, Expense, Category])],
+  imports: [
+    DatabaseModule,
+    TypeOrmModule.forFeature([ Report, Expense, User]),
+  
+  ],
   controllers: [ReportsController],
   providers: [ReportsService],
-  exports: [ReportsService],
 })
 export class ReportsModule {}

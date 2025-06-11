@@ -1,21 +1,28 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Expense } from '../../expenses/entities/expense.entity';
 
 @Entity('categories')
 export class Category {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @CreateDateColumn()
-  created_at: Date;
-  
-  @Column({ type: 'varchar', unique: true, nullable: false })
+  @Column({ type: 'varchar', nullable: false })
   name: string;
 
-  @Column({ nullable: true }) // Make it nullable initially
+  @Column({ nullable: false })
   userId: number;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @Column({ nullable: true })
+  categoryId: number;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: User;
+
+  @OneToMany(() => Expense, expense => expense.category)
+  expenses: Expense[];
 }

@@ -1,70 +1,73 @@
-import { Injectable, NotFoundException, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Between } from 'typeorm';
 import { Expense } from './entities/expense.entity';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
+import { Category } from '../categories/entities/category.entity';
 
 @Injectable()
 export class ExpensesService {
-  private readonly logger = new Logger(ExpensesService.name);
-
   constructor(
     @InjectRepository(Expense)
-    private expensesRepository: Repository<Expense>,
+    private readonly expensesRepository: Repository<Expense>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
   ) {}
 
   async createExpense(userId: number, createExpenseDto: CreateExpenseDto): Promise<Expense> {
-    this.logger.log(`Creating expense for user ${userId}`);
-    
+    const category = await this.categoryRepository.findOneBy({ id: createExpenseDto.categoryId });
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+
     const expense = this.expensesRepository.create({
-      ...createExpenseDto,
-      user: { id: userId },
+      userId,
+      categoryId: category.id,
+      amount: createExpenseDto.amount,
+      date: createExpenseDto.date,
+      description: createExpenseDto.description
     });
     
     return this.expensesRepository.save(expense);
   }
 
-  async findAll(): Promise<Expense[]> {
-    this.logger.log('Finding all expenses (admin access)');
+  async findAll(userId: number): Promise<Expense[]> {
     return this.expensesRepository.find({
-      relations: ['user'],
-      order: { createdAt: 'DESC' }
+      where: { userId },
+      relations: ['category'],
+      order: { created_at: 'DESC' }
     });
   }
 
-  async findAllByUser(userId: number): Promise<Expense[]> {
-    this.logger.log(`Finding all expenses for user ${userId}`);
+  async findAllByDateRange(userId: number, startDate: Date, endDate: Date): Promise<Expense[]> {
     return this.expensesRepository.find({
-      where: { user: { id: userId } },
-      relations: ['user'],
-      order: { createdAt: 'DESC' }
+      where: {
+        userId,
+        date: Between(startDate, endDate)
+      },
+      relations: ['category'],
+      order: { created_at: 'DESC' }
     });
   }
 
-  async findOne(id: number): Promise<Expense> {
-    this.logger.log(`Finding expense with id: ${id}`);
-    
+  async findOne(id: number, userId: number): Promise<Expense> {
     const expense = await this.expensesRepository.findOne({
-      where: { expense_id: id },
-      relations: ['user']
+      where: { id, userId },
+      relations: ['category']
     });
     
     if (!expense) {
-      this.logger.warn(`Expense not found with id: ${id}`);
-      throw new NotFoundException(`Expense not found with id: ${id}`);
+      throw new NotFoundException(`Expense with ID ${id} not found`);
     }
     
     return expense;
   }
 
   async update(id: number, userId: number, updateExpenseDto: UpdateExpenseDto): Promise<Expense> {
-    this.logger.log(`Updating expense ${id} for user ${userId}`);
+    const expense = await this.findOne(id, userId);
     
-    const expense = await this.findOne(id);
-    
-    if (expense.user.id !== userId) {
-      this.logger.warn(`User ${userId} attempted to update expense ${id} belonging to user ${expense.user.id}`);
+    if (expense.userId !== userId) {
       throw new UnauthorizedException('You can only update your own expenses');
     }
     
@@ -73,12 +76,9 @@ export class ExpensesService {
   }
 
   async delete(id: number, userId: number, isAdmin: boolean): Promise<void> {
-    this.logger.log(`Deleting expense ${id} by user ${userId} (admin: ${isAdmin})`);
+    const expense = await this.findOne(id, userId);
     
-    const expense = await this.findOne(id);
-    
-    if (!isAdmin && expense.user.id !== userId) {
-      this.logger.warn(`User ${userId} attempted to delete expense ${id} belonging to user ${expense.user.id}`);
+    if (!isAdmin && expense.userId !== userId) {
       throw new UnauthorizedException('You can only delete your own expenses');
     }
     

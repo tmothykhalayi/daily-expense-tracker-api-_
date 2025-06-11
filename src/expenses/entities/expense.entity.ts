@@ -1,48 +1,41 @@
+// expense.entity.ts
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Category } from '../../categories/entities/category.entity';
 import { Report } from '../../reports/entities/report.entity';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  CreateDateColumn,
-  UpdateDateColumn,
-  JoinColumn,
-} from 'typeorm';
 
 @Entity('expenses')
 export class Expense {
-  @PrimaryGeneratedColumn()
-  expense_id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @ManyToOne(() => User, (user) => user.expenses, { onDelete: 'CASCADE' })
-  user: User;
+    @Column('decimal', { precision: 10, scale: 2 })
+    amount: number;
 
-  @Column()
-  userId: number;
+    @Column({ nullable: true })
+    description: string;
 
-  @Column('decimal', { precision: 10, scale: 2 })
-  amount: number;
+    @Column('date')
+    date: Date;
 
-  @Column({ length: 100 })
-  category: string;
+    @Column()
+    userId: number;
 
-  @Column('date')
-  date: Date;
+    @Column()
+    categoryId: number;
 
-  @Column('text', { nullable: true })
-  description?: string;
+    @CreateDateColumn()
+    created_at: Date;
 
-  @ManyToOne(() => Report, (report) => report.expenses, { nullable: true })
-  @JoinColumn({ name: 'reportId' })
-  report: Report;
+    @ManyToOne(() => User, user => user.expenses)
+    @JoinColumn({ name: 'userId' })
+    user: User;
 
-  @Column({ nullable: true })
-  reportId: number;
+    @ManyToOne(() => Category)
+    @JoinColumn({ name: 'categoryId' })
+    category: Category;
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+    @ManyToOne(() => Report)
+    @JoinColumn({ name: 'reportId' })
+    report: Report;
 }

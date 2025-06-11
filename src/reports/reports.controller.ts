@@ -1,92 +1,67 @@
-import { Controller, Get, Post, Query, UseGuards, ForbiddenException, Body, ParseIntPipe } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
-import { ReportsService } from './reports.service';
-import { GetCurrentUser, GetCurrentUserId } from '../auth/decorators';
-import { AtGuard, RolesGuard } from '../auth/guards';
-import { Role } from '../auth/enums/role.enum';
-import { GetReportDto, ReportTimeRange } from './dto/get-report.dto';
+import { Controller, Get, Post, Body, Param, UseGuards, Query, ForbiddenException, InternalServerErrorException } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ReportsService, ReportWithTotals } from './reports.service';
 import { CreateReportDto } from './dto/create-report.dto';
-import { ReportWithTotals } from './interfaces/report-with-totals.interface';
-import { Logger } from '@nestjs/common';
+import { GetCurrentUser, GetCurrentUserId } from '../auth/decorators';
+import { AtGuard } from '../auth/guards';
+import { Role } from '../auth/enums/role.enum';
 
 @Controller('reports')
-@UseGuards(AtGuard, RolesGuard)
+@UseGuards(AtGuard)
 @ApiBearerAuth()
 @ApiTags('reports')
 export class ReportsController {
-  private readonly logger = new Logger(ReportsController.name);
-
   constructor(private readonly reportsService: ReportsService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new report' })
   async createReport(
-    @Body() createReportDto: CreateReportDto,
     @GetCurrentUserId() userId: number,
+    @Body() createReportDto: CreateReportDto
   ) {
-    const reportData = { ...createReportDto, userId };
-    return this.reportsService.createReport(reportData);
+    return this.reportsService.createReport(userId, createReportDto);
   }
 
-  @Get('daily')
-  @ApiOperation({ summary: 'Get daily report' })
-  @ApiQuery({ name: 'year', required: true })
-  @ApiQuery({ name: 'month', required: true })
-  @ApiQuery({ name: 'day', required: true })
-  async getDailyReport(
-    @GetCurrentUserId() userId: number,
-    @Query('year', ParseIntPipe) year: number,
-    @Query('month', ParseIntPipe) month: number,
-    @Query('day', ParseIntPipe) day: number
-  ): Promise<ReportWithTotals> {
-    return this.reportsService.generateDailyReport(userId, year, month, day);
+@Get('my/daily')
+@ApiOperation({ summary: 'Get current user daily reports' })
+async getMyDailyReport(@GetCurrentUserId() userId: number): Promise<ReportWithTotals> {
+  try {
+    return await this.reportsService.getDailyReport(userId);
+  } catch (error) {
+    console.error('Error in getMyDailyReport:', error);
+    throw new InternalServerErrorException('Failed to get daily report');
+  }
+}
+
+
+
+  @Get('my/weekly')
+  @ApiOperation({ summary: 'Get current user weekly reports' })
+  async getMyWeeklyReports(@GetCurrentUserId() userId: number): Promise<ReportWithTotals> {
+    return this.reportsService.getWeeklyReport(userId);
   }
 
-  @Get('weekly')
-  @ApiOperation({ summary: 'Get weekly report' })
-  @ApiQuery({ name: 'year', required: true })
-  @ApiQuery({ name: 'week', required: true })
-  async getWeeklyReport(
-    @GetCurrentUserId() userId: number,
-    @Query('year', ParseIntPipe) year: number,
-    @Query('week', ParseIntPipe) week: number
-  ): Promise<ReportWithTotals> {
-    return this.reportsService.generateWeeklyReport(userId, year, week);
+  @Get('my/monthly')
+  @ApiOperation({ summary: 'Get current user monthly reports' })
+  async getMyMonthlyReports(@GetCurrentUserId() userId: number): Promise<ReportWithTotals> {
+    return this.reportsService.getMonthlyReport(userId);
   }
 
-  @Get('monthly')
-  @ApiOperation({ summary: 'Get monthly report' })
-  @ApiQuery({ name: 'year', required: true })
-  @ApiQuery({ name: 'month', required: true })
-  async getMonthlyReport(
-    @GetCurrentUserId() userId: number,
-    @Query('year', ParseIntPipe) year: number,
-    @Query('month', ParseIntPipe) month: number
-  ): Promise<ReportWithTotals> {
-    return this.reportsService.generateMonthlyReport(userId, year, month);
-  }
-
-  @Get('yearly')
-  @ApiOperation({ summary: 'Get yearly report' })
-  @ApiQuery({ name: 'year', required: true })
-  async getYearlyReport(
-    @GetCurrentUserId() userId: number,
-    @Query('year', ParseIntPipe) year: number
-  ): Promise<ReportWithTotals> {
-    return this.reportsService.generateYearlyReport(userId, year);
+  @Get('my/yearly')
+  @ApiOperation({ summary: 'Get current user yearly reports' })
+  async getMyYearlyReports(@GetCurrentUserId() userId: number): Promise<ReportWithTotals> {
+    return this.reportsService.getYearlyReport(userId);
   }
 
   @Get('all')
-  @ApiOperation({ summary: 'Get all reports by year' })
-  @ApiQuery({ name: 'year', required: true })
+  @ApiOperation({ summary: 'Get all reports (Admin only)' })
   async getAllReports(
-    @GetCurrentUserId() userId: number,
     @GetCurrentUser('role') role: Role,
-    @Query('year', ParseIntPipe) year: number
+    @GetCurrentUserId() userId: number
   ) {
     if (role !== Role.ADMIN) {
       throw new ForbiddenException('Only admins can access all reports');
     }
-    return this.reportsService.getAllReportsByYear(userId, year);
+    return this.reportsService.getAllReports();
   }
 }

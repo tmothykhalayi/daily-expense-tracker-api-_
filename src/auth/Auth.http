@@ -1,106 +1,10 @@
-### 1. Create test user
-POST http://localhost:8000/users
-Content-Type: application/json
 
-{
-    "name": "luke smith",
-    "password": "password123"
-}
-###
-# 1. Create test user
-POST http://localhost:8000/users
-Content-Type: application/json
-
-{
-    "name": "eliud karanja",
-    "email": "eliudkaranja@gmail.com",
-    "password": "karanja123",
-    "role": "USER"
-}
 
 ### 2. Sign in (get access and refresh tokens)
 POST http://localhost:8000/auth/signin
 Content-Type: application/json
-
 {
-    "email": "ThadeausManya@user.com",
-    "password": "Manya123"
+  "email": "TimothyNandwa@gmail.com",
+  "password": "Nandwa123"
 }
 
-### 3. Store tokens from signin response (update manually after login)
-@accessToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc0OTUzMTE4OSwiZXhwIjoxNzQ5NTMyMDg5fQ.aZGOjHfpZSzD-2t9HJD0Xql9KlqTqKrSnS-Ftr6YzwU
-@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc0OTUzMTE4OSwiZXhwIjoxNzUwMTM1OTg5fQ.c81Aoekgm5DjLGky2l1BNkZkOEVkTBFkqrDSJLeLTnM
-@userId = 72
-
-### 4. Test protected route
-GET http://localhost:8000/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjQsImVtYWlsIjoiVGhhZGVhdXNNYW55YUB1c2VyLmNvbSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc0OTYyNDk4NCwiZXhwIjoxNzQ5NjI1ODg0fQ.paTEq5WPf9zlUvkTc-wEg3qAP0GWQuPPBMCZXNYJ3oo
-### 5. Refresh tokens
-POST http://localhost:8000/auth/refresh
-Authorization: Bearer  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjQsImVtYWlsIjoiVGhhZGVhdXNNYW55YUB1c2VyLmNvbSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc0OTYyNTE1NiwiZXhwIjoxNzUwMjI5OTU2fQ.PynjSVxyRizK0N3AEjFBourvyqFidy_sh4r22EHuGgg
-### 6. Sign out
-POST http://localhost:8000/auth/signout/72
-Authorization: Bearer  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjQsImVtYWlsIjoiVGhhZGVhdXNNYW55YUB1c2VyLmNvbSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc0OTYyNDk4NCwiZXhwIjoxNzUwMjI5Nzg0fQ.Ct_sWXxCsqhDGrmOk_wd1TUEIAKII51Wg_6nAKmzMgE
-Content-Type: application/json
-
-{
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcyLCJlbWFpbCI6Imx1a2VzbWl0aEBnbWFpbC5jb20iLCJpYXQiOjE3NDk0MDIwNDEsImV4cCI6MTc1MDAwNjg0MX0.dyAbC-pl3wTUCItBydr19VS50BerIRWlJzu4WRGtftQ"
-}
-
-
-
-### Create Admin User
-POST http://localhost:8000/users
-Content-Type: application/json
-
-{
-  "name": "Admin",
-  "email": "admin@school.com",
-  "password": "admin123",
-  "role": "ADMIN"
-}
-
-### Create Faculty User
-POST http://localhost:8000/users
-Content-Type: application/json
-
-{
-  "name": "Faculty",
-  "email": "faculty@school.com",
-  "password": "faculty123",
-  "role": "USER"
-}
-
-### Get Admin Token
-POST http://localhost:8000/auth/signin
-Content-Type: application/json
-
-{
-  "email": "admin@school.com",
-  "password": "admin123"
-}
-
-### Get Faculty Token
-POST http://localhost:8000/auth/signin
-Content-Type: application/json
-
-{
-  "email": "faculty@school.com",
-  "password": "faculty123"
-}
-###
-GET http://localhost:8000/users
-Authorization: Bearer  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjczLCJlbWFpbCI6ImFkbWluQHNjaG9vbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk1NTI3MzYsImV4cCI6MTc0OTU1MzYzNn0.jHzq-UVQgpPgjQEqvE_DDMF6-EXUMgQRBIpuhoZ4HLU
-
-### Faculty can view all profiles (should succeed)
-GET http://localhost:8000/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjc0LCJlbWFpbCI6ImZhY3VsdHlAc2Nob29sLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzQ5NTUzMDA2LCJleHAiOjE3NDk1NTM5MDZ9.68C1FJa6XJn2oKTTXZZ8V4Jor2OXp21mzeYcSeObU24
-
-### Only Admin can delete profiles (should succeed)
-DELETE http://localhost:8000/profiles/68
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjczLCJlbWFpbCI6ImFkbWluQHNjaG9vbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk0ODM1MDIsImV4cCI6MTc0OTQ4NDQwMn0.ocbQNkMxURUAIaMgWkCHpVQbTE1V0EZF57ySQMT7VSM
-
-
-### Faculty cannot delete profiles (should return 403)
-DELETE http://localhost:8000/profiles/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjczLCJlbWFpbCI6ImFkbWluQHNjaG9vbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk0ODQ4MTcsImV4cCI6MTc0OTQ4NTcxN30.pvCdXaDW5X6X6U3g2UiVKl2aWpcThtQFw34egW39HpA

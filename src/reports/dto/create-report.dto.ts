@@ -1,34 +1,16 @@
-import { IsInt, IsDateString, IsOptional, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from "@nestjs/swagger";
+import { IsDateString, IsInt } from "class-validator";
 
 export class CreateReportDto {
-  @ApiProperty({
-    description: 'The ID of the user creating the report',
-    example: 123,
-  })
-  @IsInt()
-  userId: number;
+    @ApiProperty()
+    @IsInt()
+    user_id: number;
 
-  @ApiProperty({
-    description: 'The start date of the report',
-    example: '2023-01-01',
-    type: String,
-  })
-  @IsDateString()
-  startDate: string;
+    @ApiProperty()
+    @IsDateString()
+    start_date: string;
 
-  @ApiProperty({
-    description: 'The end date of the report',
-    example: '2023-01-31',
-    type: String,
-  })
-  @IsDateString()
-  endDate: string;
-
-  @ApiProperty({
-    description: 'The title of the report',
-    example: 'Weekly Sales Report',
-  })
-  @IsString()
-  title: string;
+    @ApiProperty()
+    @IsDateString()
+    end_date: string;
 }

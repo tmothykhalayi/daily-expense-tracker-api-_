@@ -1,15 +1,16 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ExpensesService } from './expenses.service';
 import { ExpensesController } from './expenses.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { Expense } from './entities/expense.entity';
+import { Category } from '../categories/entities/category.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Expense]), // <-- this registers Expense repository for DI
+    TypeOrmModule.forFeature([Expense, Category])
   ],
-  providers: [ExpensesService],
   controllers: [ExpensesController],
-  exports: [ExpensesService], // if you want to export it for other modules
+  providers: [ExpensesService],
+  exports: [ExpensesService]
 })
 export class ExpensesModule {}

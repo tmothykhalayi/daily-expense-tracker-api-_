@@ -1,17 +1,26 @@
-import {
-  Injectable,
-  NotFoundException,
-  Logger,
-  BadRequestException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
-import { Report, ReportType } from './entities/report.entity';
-import { Expense } from '../expenses/entities/expense.entity';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
-import { GetReportDto, ReportTimeRange } from './dto/get-report.dto';
-import { ReportWithTotals } from './interfaces/report-with-totals.interface';
+import { Report } from './entities/report.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, Between, DeepPartial } from 'typeorm';
+import { Expense } from 'src/expenses/entities/expense.entity';
+
+export enum ReportTimeRange {
+  DAILY = 'daily',
+  WEEKLY = 'weekly',
+  MONTHLY = 'monthly',
+  YEARLY = 'yearly'
+}
+
+export interface ReportWithTotals extends Report {
+  totalAmount: number;
+  averagePerDay: number;
+  expenses: Expense[];
+  categoryTotals: Record<string, number>;
+  categoryBreakdown: Record<string, number>;
+}
+
 
 @Injectable()
 export class ReportsService {
@@ -19,259 +28,121 @@ export class ReportsService {
 
   constructor(
     @InjectRepository(Report)
-    private reportsRepository: Repository<Report>,
+    private readonly reportRepository: Repository<Report>,
     @InjectRepository(Expense)
-    private expensesRepository: Repository<Expense>,
+    private readonly expenseRepository: Repository<Expense>,
   ) {}
 
-  async createReport(createReportDto: CreateReportDto): Promise<Report> {
-    this.logger.log(`Creating new report: ${JSON.stringify(createReportDto)}`);
-    const report = this.reportsRepository.create(createReportDto);
-    return this.reportsRepository.save(report);
-  }
-
-  async getAllReports(getReportDto: GetReportDto): Promise<Report[]> {
-    this.logger.log(`Getting all reports with filters: ${JSON.stringify(getReportDto)}`);
-    const query = this.reportsRepository.createQueryBuilder('report');
-    this.applyFilters(query, getReportDto);
-    return query.getMany();
-  }
-
-  async getUserReports(userId: number, getReportDto: GetReportDto): Promise<ReportWithTotals[]> {
-    this.logger.log(`Getting ${getReportDto.timeRange || 'all'} reports for user ${userId}`);
-
-    const query = this.reportsRepository.createQueryBuilder('report')
-      .leftJoinAndSelect('report.expenses', 'expense')
-      .where('report.userId = :userId', { userId });
-
-    this.applyFilters(query, getReportDto);
-
-    const reports = await query.getMany();
-    return this.calculateReportTotals(reports);
-  }
-
-  async getReportById(id: number): Promise<Report> {
-    this.logger.log(`Getting report by ID: ${id}`);
-    const report = await this.reportsRepository.findOneBy({ id });
-    if (!report) {
-      throw new NotFoundException(`Report with ID ${id} not found`);
-    }
-    return report;
-  }
-
-  async update(id: number, updateReportDto: UpdateReportDto): Promise<Report> {
-    this.logger.log(`Updating report ${id}: ${JSON.stringify(updateReportDto)}`);
-    const report = await this.getReportById(id);
-    Object.assign(report, updateReportDto);
-    return this.reportsRepository.save(report);
-  }
-
-  async remove(id: number): Promise<void> {
-    this.logger.log(`Deleting report ${id}`);
-    const result = await this.reportsRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(`Report with ID ${id} not found`);
-    }
-  }
-
-  async generateDailyReport(userId: number, year: number, month: number, day: number): Promise<ReportWithTotals> {
-    const startDate = new Date(year, month - 1, day);
-    const endDate = new Date(year, month - 1, day);
-    this.normalizeStartEndDates(startDate, endDate);
-
-    return this.generateReport(userId, startDate, endDate, ReportType.DAILY);
-  }
-
-  async generateWeeklyReport(userId: number, year: number, week: number): Promise<ReportWithTotals> {
-    const startDate = this.getDateOfWeek(week, year);
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 6);
-    this.normalizeStartEndDates(startDate, endDate);
-
-    return this.generateReport(userId, startDate, endDate, ReportType.WEEKLY);
-  }
-
-  async generateMonthlyReport(userId: number, year: number, month: number): Promise<ReportWithTotals> {
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0);
-    this.normalizeStartEndDates(startDate, endDate);
-
-    return this.generateReport(userId, startDate, endDate, ReportType.MONTHLY);
-  }
-
-  async generateYearlyReport(userId: number, year: number): Promise<ReportWithTotals> {
-    const startDate = new Date(year, 0, 1);
-    const endDate = new Date(year, 11, 31);
-    this.normalizeStartEndDates(startDate, endDate);
-
-    return this.generateReport(userId, startDate, endDate, ReportType.YEARLY);
-  }
-
-  async getAllReportsByYear(userId: number, year: number): Promise<Report[]> {
-    const startDate = new Date(year, 0, 1);
-    const endDate = new Date(year, 11, 31);
-    this.normalizeStartEndDates(startDate, endDate);
-
-    return this.reportsRepository.find({
+  async createReport(userId: number, createReportDto: CreateReportDto): Promise<Report> {
+    const expenses = await this.expenseRepository.find({
       where: {
         userId,
-        startDate: Between(startDate, endDate)
+        date: Between(new Date(createReportDto.start_date), new Date(createReportDto.end_date))
       },
-      relations: ['expenses', 'expenses.category'],
-      order: { startDate: 'DESC' }
+      relations: ['category']
+    });
+
+    const totalAmount = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+
+    const report = this.reportRepository.create({
+      ...createReportDto,
+      userId,
+      total_amount: totalAmount
+    });
+
+    return this.reportRepository.save(report);
+  }
+
+  async getDailyReport(userId: number): Promise<ReportWithTotals> {
+    const today = new Date();
+    const startDate = new Date(today.setHours(0, 0, 0, 0));
+    const endDate = new Date(today.setHours(23, 59, 59, 999));
+
+    return this.generateReport(userId, startDate, endDate, ReportTimeRange.DAILY);
+  }
+
+  async getWeeklyReport(userId: number): Promise<ReportWithTotals> {
+    const today = new Date();
+    const startDate = new Date(today.setDate(today.getDate() - today.getDay()));
+    const endDate = new Date(today.setDate(startDate.getDate() + 6));
+
+    return this.generateReport(userId, startDate, endDate, ReportTimeRange.WEEKLY);
+  }
+
+  async getMonthlyReport(userId: number): Promise<ReportWithTotals> {
+    const today = new Date();
+    const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+    const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+    return this.generateReport(userId, startDate, endDate, ReportTimeRange.MONTHLY);
+  }
+
+  async getYearlyReport(userId: number): Promise<ReportWithTotals> {
+    const today = new Date();
+    const startDate = new Date(today.getFullYear(), 0, 1);
+    const endDate = new Date(today.getFullYear(), 11, 31);
+
+    return this.generateReport(userId, startDate, endDate, ReportTimeRange.YEARLY);
+  }
+
+  async getAllReports(): Promise<Report[]> {
+    return this.reportRepository.find({
+      relations: ['user', 'expenses', 'expenses.category'],
+      order: { generated_at: 'DESC' }
     });
   }
 
   private async generateReport(
-    userId: number, 
-    startDate: Date, 
-    endDate: Date, 
-    type: ReportType
+    userId: number,
+    startDate: Date,
+    endDate: Date,
+    type: ReportTimeRange
   ): Promise<ReportWithTotals> {
-    const expenses = await this.expensesRepository.find({
-      where: {
-        userId,
-        date: Between(startDate, endDate),
-      },
-      relations: ['category'],
-    });
-
-    const report = this.reportsRepository.create({
-      userId,
-      title: `${type} Report ${startDate.toLocaleDateString()}`,
-      type,
-      startDate,
-      endDate,
-    });
-
-    await this.reportsRepository.save(report);
-
-    return {
-      ...report,
-      expenses,
-      ...this.calculateTotals(expenses, startDate, endDate),
-    };
-  }
-
-  private getDateOfWeek(week: number, year: number): Date {
-    const date = new Date(year, 0, 1);
-    date.setDate(date.getDate() + (week - 1) * 7);
-    return date;
-  }
-
-  private calculateReportTotals(reports: Report[]): ReportWithTotals[] {
-    return reports.map((report) => {
-      const total = report.expenses?.reduce((sum, expense) => sum + expense.amount, 0) || 0;
-
-      const daysDiff = Math.max(
-        1,
-        Math.ceil((report.endDate.getTime() - report.startDate.getTime()) / (1000 * 60 * 60 * 24)),
-      );
-      const averagePerDay = total / daysDiff;
-
-      const categoryTotals: Record<string, number> = {};
-      report.expenses?.forEach((expense) => {
-        const category = expense.category || 'Uncategorized';
-        categoryTotals[category] = (categoryTotals[category] || 0) + expense.amount;
+    try {
+      const expenses = await this.expenseRepository.find({
+        where: {
+          userId,
+          date: Between(startDate, endDate)
+        },
+        relations: ['category']
       });
 
-      return {
-        ...report,
-        total,
-        averagePerDay,
-        categoryTotals,
+      const total = expenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
+      const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      const averagePerDay = total / Math.max(days, 1);
+
+      const categoryTotals = this.calculateCategoryTotals(expenses);
+
+      const reportData: DeepPartial<Report> = {
+        userId,
+       
+        start_date: startDate.toISOString().split('T')[0],
+        end_date: endDate.toISOString().split('T')[0],
+        total_amount: total
       };
-    });
-  }
 
-  private calculateTotals(expenses: Expense[], startDate: Date, endDate: Date) {
-    const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-    const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    const averagePerDay = total / Math.max(1, days);
+      const report = this.reportRepository.create(reportData);
+      const savedReport = await this.reportRepository.save(report);
 
-    const categoryTotals: Record<string, number> = {};
-    expenses.forEach((expense) => {
-      const categoryName = expense.category || 'Uncategorized';
-      categoryTotals[categoryName] = (categoryTotals[categoryName] || 0) + expense.amount;
-    });
-
-    return { total, averagePerDay, categoryTotals };
-  }
-
-  private applyFilters(query: any, getReportDto: GetReportDto) {
-    const { startDate, endDate } = this.getDateRangeFromDto(getReportDto);
-    
-    query.andWhere('report.startDate >= :startDate AND report.endDate <= :endDate', {
-      startDate,
-      endDate,
-    });
-
-    query.orderBy('report.createdAt', 'DESC');
-  }
-
-  private getDateRangeFromDto(dto: GetReportDto): { startDate: Date; endDate: Date } {
-    const now = new Date(dto.year, 0);
-    let startDate: Date;
-    let endDate: Date;
-
-    switch (dto.timeRange) {
-      case ReportTimeRange.DAILY:
-        if (!dto.month || !dto.day) {
-          throw new BadRequestException('Month and day are required for daily reports');
-        }
-        startDate = new Date(dto.year, dto.month - 1, dto.day);
-        endDate = new Date(dto.year, dto.month - 1, dto.day);
-        break;
-
-      case ReportTimeRange.WEEKLY:
-        if (!dto.week) {
-          throw new BadRequestException('Week number is required for weekly reports');
-        }
-        startDate = this.getDateOfWeek(dto.week, dto.year);
-        endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + 6);
-        break;
-
-      case ReportTimeRange.MONTHLY:
-        if (!dto.month) {
-          throw new BadRequestException('Month is required for monthly reports');
-        }
-        startDate = new Date(dto.year, dto.month - 1, 1);
-        endDate = new Date(dto.year, dto.month, 0);
-        break;
-
-      case ReportTimeRange.YEARLY:
-        startDate = new Date(dto.year, 0, 1);
-        endDate = new Date(dto.year, 11, 31);
-        break;
-
-      default:
-        throw new BadRequestException('Invalid report time range');
-    }
-
-    this.normalizeStartEndDates(startDate, endDate);
-    return { startDate, endDate };
-  }
-
-  private normalizeDateRange(
-    startDate?: Date | string,
-    endDate?: Date | string,
-  ): { startDate?: Date; endDate?: Date } {
-    let normalizedStartDate = startDate ? new Date(startDate) : undefined;
-    let normalizedEndDate = endDate ? new Date(endDate) : undefined;
-
-    if (normalizedStartDate) {
-      normalizedStartDate.setHours(0, 0, 0, 0);
-    }
-    if (normalizedEndDate) {
-      normalizedEndDate.setHours(23, 59, 59, 999);
-    }
-
-    return { startDate: normalizedStartDate, endDate: normalizedEndDate };
-  }
-
-    private normalizeStartEndDates(startDate: Date, endDate: Date): void {
-      startDate.setHours(0, 0, 0, 0);
-      endDate.setHours(23, 59, 59, 999);
+      return {
+        ...savedReport,
+        totalAmount: total,
+        averagePerDay,
+        expenses,
+        categoryTotals,
+        categoryBreakdown: categoryTotals
+      } as ReportWithTotals;
+    } catch (error) {
+      this.logger.error(`Error generating report: ${error.message}`);
+      throw new Error('Failed to generate report');
     }
   }
+
+  private calculateCategoryTotals(expenses: Expense[]): Record<string, number> {
+    return expenses.reduce((acc, expense) => {
+      const categoryName = expense.category?.name || 'Uncategorized';
+      acc[categoryName] = (acc[categoryName] || 0) + Number(expense.amount);
+      return acc;
+    }, {} as Record<string, number>);
+  }
+}

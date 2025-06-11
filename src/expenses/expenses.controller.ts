@@ -12,7 +12,7 @@ import { Role } from '../auth/enums/role.enum';
 
 @ApiBearerAuth()
 @Controller('expenses')
-@UseGuards(AtGuard, RolesGuard)
+@UseGuards(AtGuard)
 @ApiTags('expenses')
 export class ExpensesController {
   private readonly logger = new Logger(ExpensesController.name);
@@ -31,36 +31,22 @@ export class ExpensesController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get expenses (filtered by user role)' })
-  @ApiResponse({ status: 200, description: 'Returns expenses based on user role' })
-  async getExpenses(
-    @GetCurrentUserId() userId: number,
-    @GetCurrentUser('role') role: Role
-  ) {
-    this.logger.log(`Fetching expenses for ${role} with ID ${userId}`);
-    if (role === Role.ADMIN) {
-      return this.expensesService.findAll();
-    }
-    return this.expensesService.findAllByUser(userId);
+  @ApiOperation({ summary: 'Get all expenses for current user' })
+  @ApiResponse({ status: 200, description: 'Returns expenses for the current user' })
+  async findAll(@GetCurrentUserId() userId: number) {
+    this.logger.log(`Fetching all expenses for user ${userId}`);
+    return this.expensesService.findAll(userId);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get expense by ID' })
   @ApiResponse({ status: 200, description: 'Returns expense if authorized' })
-  async getExpenseById(
+  async findOne(
     @Param('id', ParseIntPipe) id: number,
-    @GetCurrentUserId() userId: number,
-    @GetCurrentUser('role') role: Role
+    @GetCurrentUserId() userId: number
   ) {
     this.logger.log(`Fetching expense ${id} for user ${userId}`);
-    const expense = await this.expensesService.findOne(id);
-    
-    if (role !== Role.ADMIN && expense.user.id !== userId) {
-      this.logger.warn(`Unauthorized access attempt to expense ${id} by user ${userId}`);
-      throw new UnauthorizedException('You can only view your own expenses');
-    }
-    
-    return expense;
+    return this.expensesService.findOne(id, userId);
   }
 
   @Put(':id')

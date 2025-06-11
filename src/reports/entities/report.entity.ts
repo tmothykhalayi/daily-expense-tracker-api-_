@@ -1,68 +1,39 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-  OneToMany,
-} from 'typeorm';
-import { User } from '../../users/entities/user.entity';
-import { Expense } from '../../expenses/entities/expense.entity';
-
-export enum ReportType {
-  WEEKLY = 'WEEKLY',
-  MONTHLY = 'MONTHLY',
-  YEARLY = 'YEARLY',
-  DAILY = 'DAILY'
-
-}
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn, CreateDateColumn } from "typeorm";
+import { User } from "../../users/entities/user.entity";
+import { Expense } from "../../expenses/entities/expense.entity";
+import { ReportTimeRange } from "../dto/get-report.dto";
 
 @Entity('reports')
 export class Report {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: false })
-  title: string;
-
-  @Column({ nullable: true })
-  description?: string;
-
-  @Column({
-    type: 'enum',
-    enum: ReportType,
-    default: ReportType.DAILY,
-  })
-  type: ReportType;
-
-  @Column({ type: 'date', nullable: false })
-  startDate: Date;
-
-  @Column({ type: 'date', nullable: false })
-  endDate: Date;
-
-  // Setting default values here, good for avoiding nulls.
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  totalAmount: number = 0;
-
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  averagePerDay: number = 0;
-
-  @ManyToOne(() => User, (user) => user.reports, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
-  user: User;
-
   @Column()
   userId: number;
 
-  @OneToMany(() => Expense, (expense) => expense.report)
-  expenses: Expense[];
+  @Column({
+    type: 'enum',
+    enum: ReportTimeRange,
+    default: ReportTimeRange.DAILY
+  })
+  type: ReportTimeRange;
+
+  @Column('date')
+  start_date: string;
+
+  @Column('date')
+  end_date: string;
+
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  total_amount: number;
 
   @CreateDateColumn()
-  createdAt: Date;
+  generated_at: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'userId' })
+  user: User;
+
+  @OneToMany(() => Expense, expense => expense.report)
+  expenses: Expense[];
 }
