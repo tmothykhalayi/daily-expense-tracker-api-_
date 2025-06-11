@@ -45,15 +45,15 @@ export class AuthController {
     examples: {
       user1: {
         value: {
-          email: 'user@example.com',
-          password: 'StrongP@ss123',
+          email: 'user@user.com',
+          password: 'user123',
         },
         summary: 'Basic user credentials',
       },
       user2: {
         value: {
-          email: 'admin@example.com',
-          password: 'AdminP@ss123',
+          email: 'admin@admin.com',
+          password: 'Admin123',
         },
         summary: 'Admin credentials',
       },
@@ -66,7 +66,7 @@ export class AuthController {
       example: {
         user: {
           id: 1,
-          email: 'user@example.com',
+          email: 'user@user.com',
           role: 'USER',
         },
         accessToken: 'eyJhbGciOiJIUzI1...',

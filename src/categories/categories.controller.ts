@@ -18,8 +18,8 @@ export class CategoriesController {
 
     //creating a new categories
   @Post()
-  @Roles(Role.ADMIN)
-  @ApiOperation({ summary: 'Create category (Admin only)' })
+  @Roles(Role.ADMIN ,Role.USER)
+  @ApiOperation({ summary: 'Create category ' })
     async createCategory(@Body() createCategoryDto: CreateCategoryDto): Promise<Category> {
         return this.categoryService.createCategory(createCategoryDto);
     }

@@ -17,8 +17,6 @@ export class ReportsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new report' })
-  @ApiResponse({ status: 201, description: 'Report created successfully.' })
-  @ApiResponse({ status: 400, description: 'Invalid input.' })
   async createReport(
     @Body() createReportDto: CreateReportDto,
     @GetCurrentUserId() userId: number,
@@ -55,7 +53,7 @@ export class ReportsController {
   }
 
   @Get('all')
-  @ApiOperation({ summary: 'Get all reports (Admin only)' })
+  @ApiOperation({ summary: 'Get all reports ' })
   async getAllReports(
     @GetCurrentUser('role') role: Role,
     @Query() getReportDto: GetReportDto
