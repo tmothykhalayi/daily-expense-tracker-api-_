@@ -22,7 +22,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: true }) // Removed unique constraint due to nullability
+  @Column({ nullable: true }) 
   name: string;
 
   @Column({ unique: true })

@@ -60,12 +60,12 @@ services:
       PORT: 8000
       DB_HOST: daily-management-db
       DB_PORT: 5432
-      DB_NAME: daily-expense-tracker-system-db
+      DB_NAME: expensetracker
       DB_USERNAME: postgres
       DB_PASSWORD: B3YOND
       DB_SYNC: true
       DB_LOGGING: true
-      REDIS_URL: redis://:${REDIS_PASSWORD:-your_secure_redis_password}@redis:6379
+      REDIS_URL: redis://:${REDIS_PASSWORD:-password}@redis:6379
       JWT_ACCESS_TOKEN_SECRET: ${JWT_ACCESS_TOKEN_SECRET:-your_access_token_secret}
       JWT_ACCESS_TOKEN_EXPIRATION_TIME: ${JWT_ACCESS_TOKEN_EXPIRATION_TIME:-15m}
       JWT_REFRESH_TOKEN_SECRET: ${JWT_REFRESH_TOKEN_SECRET:-your_refresh_token_secret}

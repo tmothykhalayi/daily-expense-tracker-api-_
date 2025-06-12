@@ -3,7 +3,7 @@ import {
   Body, Param, Delete, Put, ForbiddenException, 
   Logger, UnauthorizedException 
 } from '@nestjs/common';
-import { Role } from '../auth/enums/role.enum'; // Update this import
+import { Role } from '../auth/enums/role.enum'; 
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -25,6 +25,7 @@ export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
   @Public()
+  @Roles(Role.ADMIN) 
   @Post()
   @ApiOperation({ summary: 'Create new user' })
   @ApiBody({ type: CreateUserDto })
@@ -46,7 +47,7 @@ export class UsersController {
   }
 
   @Get()
-  @Roles(Role.ADMIN) // Changed from UserRole.ADMIN to Role.ADMIN
+  @Roles(Role.ADMIN) 
   @ApiOperation({ summary: 'Get all users (Admin only)' })
   async findAllUsers(@GetCurrentUser() user) {
     this.logger.log(`Admin ${user.email} requesting all users list`);
@@ -106,7 +107,7 @@ export class UsersController {
       throw new ForbiddenException('You can only update your own profile');
     }
 
-    // Prevent role escalation
+  
     if (updateUserDto.role && user.role !== UserRole.ADMIN) {
       this.logger.warn(`Role modification attempt by non-admin user ${user.email}`);
       throw new UnauthorizedException('Only administrators can modify user roles');
@@ -116,7 +117,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN) // Changed from UserRole.ADMIN to Role.ADMIN
+  @Roles(Role.ADMIN) 
   @ApiOperation({ summary: 'Delete user (Admin only)' })
   @ApiParam({ name: 'id', type: 'number' })
   async deleteUser(

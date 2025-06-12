@@ -51,7 +51,7 @@ const config = new DocumentBuilder()
   .setDescription('API for tracking daily expenses and managing personal finance')
   .setVersion('1.0')
   .addTag('expenses', 'Manage expense records')
-  .addTag('users', 'User management operations (Admin only)')
+  .addTag('users', 'User management operations ')
   .addTag('categories', 'Expense categories management')
   .addTag('reports', 'Generate expense reports')
   .addBearerAuth()
@@ -67,7 +67,7 @@ const config = new DocumentBuilder()
       displayRequestDuration: true,
       docExpansion: 'none', 
       filter:true,                                         
-    showRequestDuration: true,                 // Show request duration
+    showRequestDuration: true,               
     tryItOutEnabled: true,  
     },
   

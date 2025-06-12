@@ -45,9 +45,6 @@ export class UsersService {
     const { password, ...result } = savedUser;
     return Object.assign(Object.create(Object.getPrototypeOf(savedUser)), result);
   }
-
-  // Find all users (excluding password)
-  // Now accepts requesterRole to filter results
   async findAllUsers(requesterRole: UserRole): Promise<Omit<User, 'password'>[]> {
     if (requesterRole === UserRole.ADMIN) {
       // Admin sees all users
@@ -63,7 +60,7 @@ export class UsersService {
         ],
       });
     } else {
-      // Non-admins see only users with role USER
+      // Regular users see only their own info
       return this.usersRepository.find({
         where: { role: UserRole.USER },
         select: [
@@ -135,7 +132,7 @@ export class UsersService {
     return Object.assign(Object.create(Object.getPrototypeOf(updatedUser)), result);
   }
 
-  // Update user fields (internal helper, assumes partial user object)
+
   async update(
     id: number,
     updateFields: Partial<User>,
@@ -149,7 +146,7 @@ export class UsersService {
     user.updatedAt = new Date();
     const updatedUser = await this.usersRepository.save(user);
 
-    // Clone the user object without the password to maintain class methods
+    // Cloned  the user object without the password to maintain class methods
     const { password, ...result } = updatedUser;
     return Object.assign(Object.create(Object.getPrototypeOf(updatedUser)), result);
   }
