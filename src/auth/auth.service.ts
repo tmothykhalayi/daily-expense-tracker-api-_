@@ -79,36 +79,44 @@ export class AuthService {
   // ===== REFRESH TOKENS =====
   async refreshTokens(userId: number, refreshToken: string) {
     try {
+      if (!refreshToken) {
+        this.logger.error('No refresh token provided');
+        throw new UnauthorizedException('No refresh token provided');
+      }
+
       const user = await this.userRepository.findOne({
         where: { id: userId },
         select: ['id', 'email', 'role', 'hashedRefreshToken'],
       });
 
-      if (!user) {
-        this.logger.warn(`Refresh tokens failed - user not found: ID ${userId}`);
-        throw new UnauthorizedException('Invalid refresh token');
+      if (!user || !user.hashedRefreshToken) {
+        this.logger.warn(`Refresh failed - Invalid user or missing refresh token for ID: ${userId}`);
+        throw new UnauthorizedException('Access Denied');
       }
 
-      if (!user.hashedRefreshToken) {
-        this.logger.warn(`Refresh tokens failed - no stored refresh token: ID ${userId}`);
-        throw new UnauthorizedException('Invalid refresh token');
-      }
+      const refreshTokenMatches = await bcrypt.compare(
+        refreshToken,
+        user.hashedRefreshToken
+      );
 
-      const tokenMatches = await bcrypt.compare(refreshToken, user.hashedRefreshToken);
-      if (!tokenMatches) {
-        this.logger.warn(`Refresh tokens failed - token mismatch: ID ${userId}`);
-        throw new UnauthorizedException('Invalid refresh token');
+      if (!refreshTokenMatches) {
+        this.logger.warn(`Refresh failed - Token mismatch for user ID: ${userId}`);
+        throw new UnauthorizedException('Access Denied');
       }
 
       const tokens = await this.getTokens(user.id, user.email, user.role);
       await this.updateRefreshToken(user.id, tokens.refreshToken);
 
-      this.logger.log(`Refresh tokens generated for user ID: ${userId}`);
+      this.logger.log(`Tokens refreshed successfully for user ID: ${userId}`);
 
-      return tokens;
+      return {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        role: user.role
+      };
     } catch (error) {
-      this.logger.error(`Refresh token error: ${error.message}`);
-      throw error;
+      this.logger.error(`Token refresh failed: ${error.message}`);
+      throw new UnauthorizedException('Unable to refresh tokens');
     }
   }
 

@@ -8,9 +8,10 @@ export class Report {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: true }) 
   userId: number;
 
+  // Enum column, matching your "type" column as enum
   @Column({
     type: 'enum',
     enum: ReportTimeRange,
@@ -18,22 +19,27 @@ export class Report {
   })
   type: ReportTimeRange;
 
+  // Dates for start and end date
   @Column('date')
   start_date: string;
 
   @Column('date')
   end_date: string;
 
+  // Decimal total amount with precision 10, scale 2
   @Column('decimal', { precision: 10, scale: 2, default: 0 })
   total_amount: number;
 
+  // Automatically set generated timestamp
   @CreateDateColumn()
   generated_at: Date;
 
+  // Many reports belong to one user, join on userId column
   @ManyToOne(() => User)
   @JoinColumn({ name: 'userId' })
   user: User;
 
+  // One report can have many expenses
   @OneToMany(() => Expense, expense => expense.report)
   expenses: Expense[];
 }

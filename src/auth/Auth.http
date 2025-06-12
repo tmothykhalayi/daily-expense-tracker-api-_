@@ -1,10 +1,100 @@
+//CATEGORIES
+{ "name": "Groceries" }
+{ "name": "Transport" }
+{ "name": "Utilities" }
+
+{ "name": "Entertainment" }
+{ "name": "Work Supplies" }
+{ "name": "General" }
+
+{ "name": "Health" }
+{ "name": "Education" }
+{ "name": "Travel" }
+
+{ "name": "Fitness" }
+{ "name": "Bills" }
+{ "name": "Dining Out" }
+
+{ "name": "Shopping" }
+{ "name": "Subscriptions" }
+{ "name": "Gifts" }
+
+{ "name": "Savings" }
+{ "name": "Investments" }
+{ "name": "Insurance" }
+
+{ "name": "Pets" }
+{ "name": "Car Maintenance" }
+{ "name": "Home Improvement" }
+
+{ "name": "Miscellaneous" }
+{ "name": "Charity" }
+{ "name": "Hobbies" }
 
 
-### 2. Sign in (get access and refresh tokens)
-POST http://localhost:8000/auth/signin
-Content-Type: application/json
-{
-  "email": "TimothyNandwa@gmail.com",
-  "password": "Nandwa123"
-}
+//categories
+{ "name": "Groceries" }
+{ "name": "Transport" }
+{ "name": "Utilities" }
 
+{ "name": "Entertainment" }
+{ "name": "Work Supplies" }
+{ "name": "General" }
+
+{ "name": "Health" }
+{ "name": "Education" }
+{ "name": "Travel" }
+
+{ "name": "Fitness" }
+{ "name": "Bills" }
+{ "name": "Dining Out" }
+
+{ "name": "Shopping" }
+{ "name": "Subscriptions" }
+{ "name": "Gifts" }
+
+{ "name": "Savings" }
+{ "name": "Investments" }
+{ "name": "Insurance" }
+
+{ "name": "Pets" }
+{ "name": "Car Maintenance" }
+{ "name": "Home Improvement" }
+
+{ "name": "Miscellaneous" }
+{ "name": "Charity" }
+{ "name": "Hobbies" }
+
+//expenses
+{ "name": "Groceries", "amount": 150.00, "date": "2023-10-01" }
+{ "name": "Transport", "amount": 50.00, "date": "2023-10-02" }
+{ "name": "Utilities", "amount": 100.00, "date": "2023-10-03" }
+
+{ "name": "Entertainment", "amount": 75.00, "date": "2023-10-04" }
+{ "name": "Work Supplies", "amount": 200.00, "date": "2023-10-05" }
+{ "name": "General", "amount": 30.00, "date": "2023-10-06" }
+
+{ "name": "Health", "amount": 60.00, "date": "2023-10-07" }
+{ "name": "Education", "amount": 120.00, "date": "2023-10-08" }
+{ "name": "Travel", "amount": 300.00, "date": "2023-10-09" }
+
+{ "name": "Fitness", "amount": 45.00, "date": "2023-10-10" }
+{ "name": "Bills", "amount": 80.00, "date": "2023-10-11" }
+{ "name": "Dining Out", "amount": 65.00, "date": "2023-10-12" }
+
+{ "name": "Shopping", "amount": 90.00, "date": "2023-10-13" }
+{ "name": "Subscriptions", "amount": 15.00, "date": "2023-10-14" }
+{ "name": "", amount: "", date: "" } // Placeholder for future expenses
+{ "name": "Gifts", "amount": 40.00, "date": "2023-10-15" }
+
+{ "name": "Savings", "amount": 200.00, "date": "2023-10-16" }
+{ "name": "Investments", "amount": 500.00, "date": "2023-10-17" }
+{ "name": "Insurance", "amount": 150.00, "date": "2023-10-18" }
+
+{ "name": "Pets", "amount": 70.00, "date": "2023-10-19" }
+{ "name": "Car Maintenance", "amount": 120.00, "date": "2023-10-20" }
+{ "name": "Home Improvement", "amount": 300.00, "date": "2023-10-21" }
+
+{ "name": "Miscellaneous", "amount": 25.00, "date": "2023-10-22" }
+{ "name": "", amount: "", date: "" } // Placeholder for future expenses
+{ "name": "", amount: "", date: "" } // Placeholder for future expense

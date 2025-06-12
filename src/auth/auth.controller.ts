@@ -7,6 +7,7 @@ import {
   UseGuards,
   Param,
   ParseIntPipe,
+  Headers,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
@@ -21,6 +22,7 @@ import {
   ApiBearerAuth,
   ApiBody,
 } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
 // Custom interface to include user payload from JWT
 export interface RequestWithUser extends Request {
@@ -43,19 +45,12 @@ export class AuthController {
   @ApiBody({
     type: CreateAuthDto,
     examples: {
-      user1: {
-        value: {
-          email: 'user@user.com',
-          password: 'user123',
-        },
-        summary: 'Basic user credentials',
-      },
       user2: {
         value: {
-          email: 'admin@admin.com',
+          email: 'admin@gmail.com',
           password: 'Admin123',
         },
-        summary: 'Admin credentials',
+        summary: 'user credentials',
       },
     },
   })
@@ -66,7 +61,7 @@ export class AuthController {
       example: {
         user: {
           id: 1,
-          email: 'user@user.com',
+          email: 'user@gmail.com',
           role: 'USER',
         },
         accessToken: 'eyJhbGciOiJIUzI1...',
@@ -105,12 +100,29 @@ export class AuthController {
   @Public()
   @UseGuards(RtGuard)
   @Post('refresh')
-  
+  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiResponse({
+    status: 200,
+    description: 'New access and refresh tokens generated',
+    schema: {
+      example: {
+        accessToken: 'eyJhbGciOiJIUzI1...',
+        refreshToken: 'eyJhbGciOiJIUzI1...',
+        role: 'USER',
+      },
+    },
+  })
   async refreshTokens(
-    @GetCurrentUserId() userId: number,
-    @Req() req: RequestWithUser
+    @Req() req: any,
+    @Headers('authorization') authHeader: string
   ) {
-    const refreshToken = req.headers.authorization?.split(' ')[1] || '';
+    const userId = req.user?.sub;
+    const refreshToken = authHeader?.replace('Bearer', '').trim();
+
+    if (!userId || !refreshToken) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
     return this.authService.refreshTokens(userId, refreshToken);
   }
 }
