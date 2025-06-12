@@ -6,7 +6,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
-import { Public, GetCurrentUser, GetCurrentUserId } from '../auth/decorators';
+import { Public, GetCurrentUser, GetCurrentUserId, Roles } from '../auth/decorators';
 import { AtGuard, RolesGuard } from '../auth/guards';
 import { Role } from '../auth/enums/role.enum';
 
@@ -29,7 +29,8 @@ export class ExpensesController {
     this.logger.log(`Creating expense for user ${userId}`);
     return this.expensesService.createExpense(userId, createExpenseDto);
   }
-
+ @Roles(Role.ADMIN , Role.USER)
+  @UseGuards(RolesGuard)
   @Get()
   @ApiOperation({ summary: 'Get all expenses for current user' })
   @ApiResponse({ status: 200, description: 'Returns expenses for the current user' })
@@ -39,6 +40,8 @@ export class ExpensesController {
   }
 
   @Get(':id')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN , Role.USER)
   @ApiOperation({ summary: 'Get expense by ID' })
   @ApiResponse({ status: 200, description: 'Returns expense if authorized' })
   async findOne(
