@@ -1,67 +1,134 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Query, ForbiddenException, InternalServerErrorException } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { ReportsService, ReportWithTotals } from './reports.service';
-import { CreateReportDto } from './dto/create-report.dto';
-import { GetCurrentUser, GetCurrentUserId } from '../auth/decorators';
-import { AtGuard } from '../auth/guards';
+import { 
+  Controller, 
+  Get, 
+  Param, 
+  ParseIntPipe, 
+  UseGuards,
+  Logger,
+  InternalServerErrorException
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ReportsService } from './reports.service';
+import { GetCurrentUserId } from '../auth/decorators/get-current-user-id.decorator';
+import { AtGuard } from '../auth/guards/at.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/enums/role.enum';
+import { GetReportDto } from './dto/get-report.dto';
 
 @Controller('reports')
-@UseGuards(AtGuard)
 @ApiBearerAuth()
 @ApiTags('reports')
+@UseGuards(AtGuard, RolesGuard)
 export class ReportsController {
+  private readonly logger = new Logger(ReportsController.name);
+
   constructor(private readonly reportsService: ReportsService) {}
 
-  @Post()
-  @ApiOperation({ summary: 'Create a new report' })
-  async createReport(
+  @Get('monthly/:year/:month')
+  @ApiOperation({ summary: 'Get monthly report' })
+  @ApiResponse({
+    status: 200,
+    description: 'Monthly report retrieved successfully',
+    type: GetReportDto 
+  })
+  async getMonthlyReport(
     @GetCurrentUserId() userId: number,
-    @Body() createReportDto: CreateReportDto
+    @Param('year', ParseIntPipe) year: number,
+    @Param('month', ParseIntPipe) month: number,
   ) {
-    return this.reportsService.createReport(userId, createReportDto);
-  }
-
-@Get('my/daily')
-@ApiOperation({ summary: 'Get current user daily reports' })
-async getMyDailyReport(@GetCurrentUserId() userId: number): Promise<ReportWithTotals> {
-  try {
-    return await this.reportsService.getDailyReport(userId);
-  } catch (error) {
-    console.error('Error in getMyDailyReport:', error);
-    throw new InternalServerErrorException('Failed to get daily report');
-  }
-}
-
-
-
-  @Get('my/weekly')
-  @ApiOperation({ summary: 'Get current user weekly reports' })
-  async getMyWeeklyReports(@GetCurrentUserId() userId: number): Promise<ReportWithTotals> {
-    return this.reportsService.getWeeklyReport(userId);
-  }
-
-  @Get('my/monthly')
-  @ApiOperation({ summary: 'Get current user monthly reports' })
-  async getMyMonthlyReports(@GetCurrentUserId() userId: number): Promise<ReportWithTotals> {
-    return this.reportsService.getMonthlyReport(userId);
-  }
-
-  @Get('my/yearly')
-  @ApiOperation({ summary: 'Get current user yearly reports' })
-  async getMyYearlyReports(@GetCurrentUserId() userId: number): Promise<ReportWithTotals> {
-    return this.reportsService.getYearlyReport(userId);
-  }
-
-  @Get('all')
-  @ApiOperation({ summary: 'Get all reports (Admin only)' })
-  async getAllReports(
-    @GetCurrentUser('role') role: Role,
-    @GetCurrentUserId() userId: number
-  ) {
-    if (role !== Role.ADMIN) {
-      throw new ForbiddenException('Only admins can access all reports');
+    try {
+      return await this.reportsService.getMonthlyReport(userId, year, month);
+    } catch (error) {
+      this.logger.error(`Error getting monthly report: ${error.message}`);
+      throw new InternalServerErrorException('Failed to get monthly report');
     }
-    return this.reportsService.getAllReports();
   }
+
+  @Get('monthly-summary/:year/:month')
+  @ApiOperation({ summary: 'Get monthly summary' })
+  async getMonthlySummary(
+    @GetCurrentUserId() userId: number,
+    @Param('year', ParseIntPipe) year: number,
+    @Param('month', ParseIntPipe) month: number,
+  ) {
+    try {
+      return await this.reportsService.getMonthlySummary(userId, year, month);
+    } catch (error) {
+      this.logger.error(`Error getting monthly summary: ${error.message}`);
+      throw new InternalServerErrorException('Failed to get monthly summary');
+    }
+  }
+
+  @Get('yearly/:year')
+  @ApiOperation({ summary: 'Get yearly report' })
+  async getYearlyReport(
+    @GetCurrentUserId() userId: number,
+    @Param('year', ParseIntPipe) year: number
+  ) {
+    try {
+      return await this.reportsService.getYearlyReport(userId, year);
+    } catch (error) {
+      this.logger.error(`Error getting yearly report: ${error.message}`);
+      throw new InternalServerErrorException('Failed to get yearly report');
+    }
+  }
+
+  @Get('yearly-summary/:year')
+  @ApiOperation({ summary: 'Get yearly summary' })
+  async getYearlySummary(
+    @GetCurrentUserId() userId: number,
+    @Param('year', ParseIntPipe) year: number
+  ) {
+    try {
+      return await this.reportsService.getYearlySummary(userId, year);
+    } catch (error) {
+      this.logger.error(`Error getting yearly summary: ${error.message}`);
+      throw new InternalServerErrorException('Failed to get yearly summary');
+    }
+  }
+
+  @Get('daily/:date')
+  @ApiOperation({ summary: 'Get daily report' })
+  async getDailyReport(
+    @GetCurrentUserId() userId: number,
+    @Param('date') date: string
+  ) {
+    try {
+      return await this.reportsService.getDailyReport(userId, date);
+    } catch (error) {
+      this.logger.error(`Error getting daily report: ${error.message}`);
+      throw new InternalServerErrorException('Failed to get daily report');
+    }
+  }
+
+  @Get('daily-summary/:date')
+  @ApiOperation({ summary: 'Get daily summary' })
+  async getDailySummary(
+    @GetCurrentUserId() userId: number,
+    @Param('date') date: string
+  ) {
+    try {
+      return await this.reportsService.getDailySummary(userId, date);
+    } catch (error) {
+      this.logger.error(`Error getting daily summary: ${error.message}`);
+      throw new InternalServerErrorException('Failed to get daily summary');
+    }
+  }
+
+  @Get('category/:categoryId')
+  @ApiOperation({ summary: 'Get category report' })
+  async getCategoryReport(
+    @GetCurrentUserId() userId: number,
+    @Param('categoryId', ParseIntPipe) categoryId: number
+  ) {
+    try {
+      return await this.reportsService.getCategoryReport(userId, categoryId);
+    } catch (error) {
+      this.logger.error(`Error getting category report: ${error.message}`);
+      throw new InternalServerErrorException('Failed to get category report');
+    }
+  }
+
+  
 }

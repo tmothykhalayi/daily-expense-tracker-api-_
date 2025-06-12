@@ -18,4 +18,6 @@ export class CreateExpenseDto {
   @ApiProperty({ example: 1 })
   @IsNumber()
   categoryId: number;
+
+
 }
