@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Expense } from './entities/expense.entity';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
@@ -15,6 +15,7 @@ export class ExpensesService {
     private readonly categoryRepository: Repository<Category>,
   ) {}
 
+  // Create expense - available to both users and admins
   async createExpense(userId: number, createExpenseDto: CreateExpenseDto): Promise<Expense> {
     const category = await this.categoryRepository.findOneBy({ id: createExpenseDto.categoryId });
     if (!category) {
@@ -32,29 +33,18 @@ export class ExpensesService {
     return this.expensesRepository.save(expense);
   }
 
-  async findAll(userId: number): Promise<Expense[]> {
+  // Admin methods
+  async findAllExpenses(): Promise<Expense[]> {
     return this.expensesRepository.find({
-      where: { userId },
-      relations: ['category'],
+      relations: ['user', 'category'],
       order: { created_at: 'DESC' }
     });
   }
 
-  async findAllByDateRange(userId: number, startDate: Date, endDate: Date): Promise<Expense[]> {
-    return this.expensesRepository.find({
-      where: {
-        userId,
-        date: Between(startDate, endDate)
-      },
-      relations: ['category'],
-      order: { created_at: 'DESC' }
-    });
-  }
-
-  async findOne(id: number, userId: number): Promise<Expense> {
+  async findOneAsAdmin(id: number): Promise<Expense> {
     const expense = await this.expensesRepository.findOne({
-      where: { id, userId },
-      relations: ['category']
+      where: { id },
+      relations: ['user', 'category']
     });
     
     if (!expense) {
@@ -64,24 +54,51 @@ export class ExpensesService {
     return expense;
   }
 
-  async update(id: number, userId: number, updateExpenseDto: UpdateExpenseDto): Promise<Expense> {
-    const expense = await this.findOne(id, userId);
-    
-    if (expense.userId !== userId) {
-      throw new UnauthorizedException('You can only update your own expenses');
-    }
-    
+  async updateAsAdmin(id: number, updateExpenseDto: UpdateExpenseDto): Promise<Expense> {
+    const expense = await this.findOneAsAdmin(id);
     Object.assign(expense, updateExpenseDto);
     return this.expensesRepository.save(expense);
   }
 
-  async delete(id: number, userId: number, isAdmin: boolean): Promise<void> {
-    const expense = await this.findOne(id, userId);
+  async deleteAsAdmin(id: number): Promise<void> {
+    const expense = await this.findOneAsAdmin(id);
+    await this.expensesRepository.remove(expense);
+  }
+
+  // User methods
+  async findUserExpenses(userId: number): Promise<Expense[]> {
+    return this.expensesRepository.find({
+      where: { userId },
+      relations: ['category'],
+      order: { created_at: 'DESC' }
+    });
+  }
+
+  async findOneAsUser(id: number, userId: number): Promise<Expense> {
+    const expense = await this.expensesRepository.findOne({
+      where: { id },
+      relations: ['category']
+    });
     
-    if (!isAdmin && expense.userId !== userId) {
-      throw new UnauthorizedException('You can only delete your own expenses');
+    if (!expense) {
+      throw new NotFoundException(`Expense with ID ${id} not found`);
+    }
+
+    if (expense.userId !== userId) {
+      throw new ForbiddenException('You can only access your own expenses');
     }
     
+    return expense;
+  }
+
+  async updateAsUser(id: number, userId: number, updateExpenseDto: UpdateExpenseDto): Promise<Expense> {
+    const expense = await this.findOneAsUser(id, userId);
+    Object.assign(expense, updateExpenseDto);
+    return this.expensesRepository.save(expense);
+  }
+
+  async deleteAsUser(id: number, userId: number): Promise<void> {
+    const expense = await this.findOneAsUser(id, userId);
     await this.expensesRepository.remove(expense);
   }
 }

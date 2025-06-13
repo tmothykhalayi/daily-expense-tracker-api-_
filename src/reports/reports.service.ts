@@ -71,16 +71,26 @@ export class ReportsService {
   }
 
   async getMonthlySummary(userId: number, year: number, month: number) {
-    const result = await this.expenseRepository
-      .createQueryBuilder('expense')
-      .select('SUM(expense.amount)', 'totalAmount')
-      .addSelect('COUNT(expense.expense_id)', 'totalCount')
-      .addSelect('AVG(expense.amount)', 'averageAmount')
-      .where('EXTRACT(YEAR FROM expense.date) = :year', { year })
-      .andWhere('EXTRACT(MONTH FROM expense.date) = :month', { month })
-      .andWhere('expense.user_id = :userId', { userId })
-      .getRawOne();
-  }
+  const result = await this.expenseRepository
+    .createQueryBuilder('expense')
+    .select('SUM(expense.amount)', 'totalAmount')
+    .addSelect('COUNT(expense.expense_id)', 'totalCount')
+    .addSelect('AVG(expense.amount)', 'averageAmount')
+    .where('EXTRACT(YEAR FROM expense.date) = :year', { year })
+    .andWhere('EXTRACT(MONTH FROM expense.date) = :month', { month })
+    .andWhere('expense.user_id = :userId', { userId })
+    .getRawOne();
+
+  return {
+    year,
+    month,
+    totalAmount: Number(result.totalAmount) || 0,
+    totalCount: Number(result.totalCount) || 0,
+    averageAmount: Number(result.averageAmount) || 0,
+  };
+}
+
+  
  
       async getYearlyReport(userId: number, year: number) {
     return this.expenseRepository

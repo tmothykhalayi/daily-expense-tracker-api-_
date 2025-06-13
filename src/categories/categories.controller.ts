@@ -54,6 +54,8 @@ export class CategoriesController {
    * ADMINs can see all categories. Regular USERS can only see their own categories.
    */
   @Get()
+  @Roles(Role.ADMIN, Role.USER) // Allow both ADMIN and USER roles to access this endpoint
+  @UseGuards(AtGuard, RolesGuard) // Ensure the user is authenticated and has the correct role
   @ApiOperation({ summary: 'Get all categories for current user / all for admin' })
   @ApiResponse({ status: 200, description: 'Returns categories based on user role', type: [Category] })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
