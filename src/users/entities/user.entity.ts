@@ -53,14 +53,14 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  private isPasswordHashed(password: string): boolean {
+  static isPasswordHashed(password: string): boolean {
     return /^\$2[aby]?\$\d{2}\$/.test(password);
   }
 
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
-    if (this.password && !this.isPasswordHashed(this.password)) {
+    if (this.password && !User.isPasswordHashed(this.password)) {
       this.password = await bcrypt.hash(this.password, 10);
     }
   }

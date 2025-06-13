@@ -8,10 +8,11 @@ import {
   Param,
   ParseIntPipe,
   Headers,
+  Logger,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/login.dto';
+import { CreateAuthDto } from './dto/create-auth.dto';
 import { Public } from './decorators/public.decorator';
 import { GetCurrentUserId } from './decorators/get-current-user-id.decorator';
 import { AtGuard, RtGuard } from './guards';
@@ -22,55 +23,35 @@ import {
   ApiBearerAuth,
   ApiBody,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
-
-// Custom interface to include user payload from JWT
-export interface RequestWithUser extends Request {
-  user: {
-    sub: number;
-    email: string;
-  };
-}
+import { UsersService } from '../users/users.service';
 
 @ApiBearerAuth()
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  private readonly logger = new Logger(AuthController.name);
+
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+  ) {}
 
   // ===== SIGN IN =====
   @Public()
   @Post('signin')
   @ApiOperation({ summary: 'Sign in user' })
-  @ApiBody({
-    type: CreateAuthDto,
-    examples: {
-      user2: {
-        value: {
-          email: 'admin@gmail.com',
-          password: 'Admin123',
-        },
-        summary: 'user credentials',
-      },
-    },
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'User successfully signed in',
-    schema: {
-      example: {
-        user: {
-          id: 1,
-          email: 'user@gmail.com',
-          role: 'USER',
-        },
-        accessToken: 'eyJhbGciOiJIUzI1...',
-        refreshToken: 'eyJhbGciOiJIUzI1...',
-      },
-    },
-  })
   async signIn(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.signIn(createAuthDto);
+    const result = await this.authService.signIn(createAuthDto);
+
+    // Check if we have the required user data
+    if (!result.user?.id || !result.user?.email) {
+      throw new UnauthorizedException('Invalid user data returned from authentication');
+    }
+
+    // Remove the welcome email logic or replace with an existing method
+    // If you still want to send a welcome email, implement the method in UsersService
+    
+    return result;
   }
 
   // ===== SIGN OUT =====

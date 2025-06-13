@@ -1,25 +1,16 @@
-// src/users/users.service.ts
-
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserRole } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
-import { MailService } from '../mail/mail.service'; // ✅ Import mail service
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-
-    private readonly mailService: MailService // ✅ Inject mail service
   ) {}
 
   // Create user with password hashing
@@ -29,6 +20,7 @@ export class UsersService {
     password: string;
     role?: string;
   }): Promise<Omit<User, 'password'>> {
+    // Check if user already exists
     const existingUser = await this.usersRepository.findOne({
       where: { email: user.email },
     });
@@ -49,20 +41,13 @@ export class UsersService {
 
     const savedUser = await this.usersRepository.save(newUser);
 
-    // ✅ Send welcome email (can be in try/catch if you want to be safe)
-    try {
-      await this.mailService.sendWelcomeEmail(savedUser.email, savedUser.name);
-    } catch (err) {
-      console.error('Failed to send welcome email:', err);
-      // Optionally log or notify an error tracker
-    }
-
+    // Remove password from response
     const { password, ...result } = savedUser;
     return Object.assign(Object.create(Object.getPrototypeOf(savedUser)), result);
   }
-
   async findAllUsers(requesterRole: UserRole): Promise<Omit<User, 'password'>[]> {
     if (requesterRole === UserRole.ADMIN) {
+      // Admin sees all users
       return this.usersRepository.find({
         select: [
           'id',
@@ -75,6 +60,7 @@ export class UsersService {
         ],
       });
     } else {
+      // Regular users see only their own info
       return this.usersRepository.find({
         where: { role: UserRole.USER },
         select: [
@@ -90,6 +76,7 @@ export class UsersService {
     }
   }
 
+  // Find user by email (including password for auth purposes)
   async findUserByEmail(email: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { email },
@@ -102,6 +89,7 @@ export class UsersService {
     return user;
   }
 
+  // Find user by ID (excluding password)
   async findUserById(id: number): Promise<Omit<User, 'password'>> {
     const user = await this.usersRepository.findOne({
       where: { id },
@@ -121,6 +109,7 @@ export class UsersService {
     return user;
   }
 
+  // Update user with password hashing
   async updateUser(
     id: number,
     updateUserDto: UpdateUserDto,
@@ -143,6 +132,7 @@ export class UsersService {
     return Object.assign(Object.create(Object.getPrototypeOf(updatedUser)), result);
   }
 
+
   async update(
     id: number,
     updateFields: Partial<User>,
@@ -156,10 +146,12 @@ export class UsersService {
     user.updatedAt = new Date();
     const updatedUser = await this.usersRepository.save(user);
 
+    // Cloned  the user object without the password to maintain class methods
     const { password, ...result } = updatedUser;
     return Object.assign(Object.create(Object.getPrototypeOf(updatedUser)), result);
   }
 
+  // Save refresh token (hashed)
   async saveRefreshToken(
     userId: number,
     refreshToken: string,
@@ -168,6 +160,7 @@ export class UsersService {
     return this.update(userId, { hashedRefreshToken });
   }
 
+  // Delete user
   async deleteUser(id: number): Promise<Omit<User, 'password'>> {
     const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) {
@@ -177,14 +170,5 @@ export class UsersService {
 
     const { password, ...result } = user;
     return Object.assign(Object.create(Object.getPrototypeOf(user)), result);
-  }
-
-  // ✅ Optional sign-in logic hook (can be used in controller/service layer)
-  async onUserSignIn(user: User) {
-    try {
-      await this.mailService.sendWelcomeEmail(user.email, user.name);
-    } catch (error) {
-      console.error('Failed to send welcome email on sign-in:', error);
-    }
   }
 }
