@@ -23,12 +23,14 @@ import { LogsModule } from './logs/logs.module';
 import { AuthModule } from './auth/auth.module';
 import { createKeyv, Keyv } from '@keyv/redis';
 import { CacheableMemory } from 'cacheable';
+import { MailModule } from './mail/mail.module';
 
 // Middleware
 import { LoggerMiddle } from './logger.middle';
 
 // Guards
 import { AtGuard } from './auth/guards';
+import { MailService } from './mail/mail.service';
 
 
 @Module({
@@ -37,7 +39,19 @@ import { AtGuard } from './auth/guards';
       isGlobal: true,
       envFilePath: '.env'
     }),
-    UsersModule, CategoriesModule, ExpensesModule, ReportsModule, DatabaseModule, SeedModule, LogsModule, AuthModule,
+    UsersModule,
+    CategoriesModule,
+    ExpensesModule, 
+    ReportsModule,
+    DatabaseModule,
+    SeedModule, 
+    LogsModule,
+    AuthModule,
+    MailModule,
+         
+
+
+// Redis + Memory Cache
     CacheModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -47,22 +61,28 @@ import { AtGuard } from './auth/guards';
           ttl: 60000,
           stores: [
             new Keyv({
-              store: new CacheableMemory({ ttl: 30000, lruSize: 5000}),
+              store: new CacheableMemory({ 
+                ttl: 30000, 
+                lruSize: 5000})
             }),
             createKeyv(configService.getOrThrow<string>('REDIS_URL')),
           ],
         };
       },
     }),
-    AuthModule,
+
+    //rate limiting
+    
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => [{
-        ttl: config.getOrThrow<number>('THROTTLE_TTL'),
-        limit: config.getOrThrow<number>('THROTTLE_LIMIT'),
+      useFactory: async (config: ConfigService) => ({
+        throttlers: [{
+          ttl: config.getOrThrow<number>('THROTTLE_TTL'),
+          limit: config.getOrThrow<number>('THROTTLE_LIMIT'),
+        }],
         ignoreUserAgents: [/^curl\//, /^PostmanRuntime\//]
-      }]
+      })
     }),
   ],
   controllers: [AppController],
@@ -78,7 +98,8 @@ import { AtGuard } from './auth/guards';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard
-    }
+    },
+    MailService
   ],
 })
 
@@ -89,5 +110,3 @@ export class AppModule implements NestModule {
       .forRoutes('users', 'categories', 'expenses', 'reports');
   }
 }
-
-
