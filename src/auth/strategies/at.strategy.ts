@@ -3,33 +3,32 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-@Injectable()
-export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(private readonly configService: ConfigService) {
-    const jwtSecret = configService.get<string>('JWT_ACCESS_TOKEN_SECRET');
-    
-    if (!jwtSecret) {
-      throw new Error(
-        'JWT_ACCESS_TOKEN_SECRET is not configured. Please check your environment variables.'
-      );
-    }
+export type JWTPayload ={
+  sub :number ;
+  email:string ;
+  role:string;
+};
 
+@Injectable()
+export class AtStrategy extends PassportStrategy(Strategy, 'jwt-at') {
+  constructor(private configService: ConfigService) {
+    const secret = configService.get<string>('JWT_ACCESS_TOKEN_SECRET');
+    if (!secret) {
+      throw new Error('JWT_ACCESS_TOKEN_SECRET not configured');
+    }
+    
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: jwtSecret,
+      secretOrKey: secret,
       ignoreExpiration: false,
     });
   }
 
   async validate(payload: any) {
-    if (!payload) {
+    if (!payload || !payload.sub) {
       throw new UnauthorizedException('Invalid token payload');
     }
-    
-    return {
-      id: payload.sub,
-      email: payload.email,
-      role: payload.role,
-    };
+
+    return payload;
   }
 }
