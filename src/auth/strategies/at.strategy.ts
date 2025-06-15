@@ -9,7 +9,9 @@ export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const jwtSecret = configService.get<string>('JWT_ACCESS_TOKEN_SECRET');
     
     if (!jwtSecret) {
-      throw new Error('JWT_ACCESS_TOKEN_SECRET not configured');
+      throw new Error(
+        'JWT_ACCESS_TOKEN_SECRET is not configured. Please check your environment variables.'
+      );
     }
 
     super({
@@ -21,7 +23,7 @@ export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   async validate(payload: any) {
     if (!payload) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid token payload');
     }
     
     return {
