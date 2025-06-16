@@ -23,14 +23,14 @@ import { LogsModule } from './logs/logs.module';
 import { AuthModule } from './auth/auth.module';
 import { createKeyv, Keyv } from '@keyv/redis';
 import { CacheableMemory } from 'cacheable';
-import { MailModule } from './mail/mail.module';
+//import { MailModule } from './mail/mail.module';
 
 // Middleware
 import { LoggerMiddle } from './logger.middle';
 
 // Guards
 import { AtGuard } from './auth/guards';
-import { MailService } from './mail/mail.service';
+//import { MailService } from './mail/mail.service';
 
 
 @Module({
@@ -47,7 +47,7 @@ import { MailService } from './mail/mail.service';
     SeedModule, 
     LogsModule,
     AuthModule,
-    MailModule,
+   // MailModule,
          
 
 
@@ -99,7 +99,7 @@ import { MailService } from './mail/mail.service';
       provide: APP_GUARD,
       useClass: ThrottlerGuard
     },
-    MailService
+   // MailService
   ],
 })
 
