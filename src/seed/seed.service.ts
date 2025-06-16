@@ -54,6 +54,7 @@ export class SeedService {
       user.password = 'password123'; 
       user.role = faker.helpers.arrayElement([UserRole.ADMIN, UserRole.USER]);
       users.push(user);
+      console.log(`User ${i + 1}: ${user.name}, Email: ${user.email}, Role: ${user.role}`);
     }
 
     const adminUser = new User();

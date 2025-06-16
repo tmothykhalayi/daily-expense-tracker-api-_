@@ -27,10 +27,10 @@ export class AuthService {
   async signIn(
     createAuthDto: CreateAuthDto,
   ): Promise<{
-    user: Partial<User>;
+
     accessToken: string;
     refreshToken: string;
-    role: string | undefined;
+  
   }> {
     try {
       const user = await this.userRepository.findOne({
@@ -65,10 +65,10 @@ export class AuthService {
       this.logger.log(`User logged in successfully: ${user.email}`);
 
       return {
-        user: userWithoutSensitive,
+        
         accessToken,
         refreshToken,
-        role,
+        
       };
     } catch (error) {
       this.logger.error(`Sign in error: ${error.message}`);

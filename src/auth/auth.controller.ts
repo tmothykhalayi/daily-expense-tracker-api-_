@@ -44,9 +44,9 @@ export class AuthController {
     const result = await this.authService.signIn(createAuthDto);
 
     // Check if we have the required user data
-    if (!result.user?.id || !result.user?.email) {
-      throw new UnauthorizedException('Invalid user data returned from authentication');
-    }
+    // if (!result.user?.id || !result.user?.email) {
+    //   throw new UnauthorizedException('Invalid user data returned from authentication');
+    // }
 
     // Remove the welcome email logic or replace with an existing method
     // If you still want to send a welcome email, implement the method in UsersService

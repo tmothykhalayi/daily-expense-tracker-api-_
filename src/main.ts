@@ -70,7 +70,7 @@ const config = new DocumentBuilder()
     showRequestDuration: true,               
     tryItOutEnabled: true,  
     },
-  
+    
     customSiteTitle: 'Expense Tracker API Docs'
   });
 
