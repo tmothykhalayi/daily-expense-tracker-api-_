@@ -31,6 +31,7 @@ import { LoggerMiddle } from './logger.middle';
 // Guards
 import { AtGuard } from './auth/guards';
 //import { MailService } from './mail/mail.service';
+import { BudgetModule } from './budget/budget.module';
 
 
 @Module({
@@ -84,6 +85,8 @@ import { AtGuard } from './auth/guards';
         ignoreUserAgents: [/^curl\//, /^PostmanRuntime\//]
       })
     }),
+
+    BudgetModule,
   ],
   controllers: [AppController],
   providers: [AppService, 
