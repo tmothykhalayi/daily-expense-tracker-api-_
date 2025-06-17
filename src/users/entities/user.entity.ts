@@ -8,8 +8,10 @@ import {
   BeforeInsert,
   BeforeUpdate,
 } from 'typeorm';
+import { Category } from '../../categories/entities/category.entity';
 import { Expense } from '../../expenses/entities/expense.entity';
 import { Report } from '../../reports/entities/report.entity';
+import { Budget } from '../../budget/entities/budget.entity';
 import * as bcrypt from 'bcrypt';
 
 export enum UserRole {
@@ -44,8 +46,14 @@ export class User {
   @OneToMany(() => Report, report => report.user)
   reports: Report[];
 
+  @OneToMany(() => Category, category => category.user)
+  categories: Category[];
+
   @OneToMany(() => Expense, expense => expense.user)
   expenses: Expense[];
+
+  @OneToMany(() => Budget, budget => budget.user)
+  budgets: Budget[];
 
   @CreateDateColumn()
   createdAt: Date;
