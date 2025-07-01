@@ -1,16 +1,26 @@
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put,  Param, Body, Delete, UseGuards , Logger, UnauthorizedException,ParseIntPipe } from '@nestjs/common';
 import { BudgetService } from './budget.service';
 import { CreateBudgetDto } from './dto/create-budget.dto';
 import { UpdateBudgetDto } from './dto/update-budget.dto';
+import { UserRole } from '../users/entities/user.entity';
+import { AtGuard, RolesGuard } from '../auth/guards';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/enums/role.enum';
 
+@Controller('budgets')
 @ApiTags('budgets')
+@ApiBearerAuth() // Indicates that authentication is required with a bearer token
+@Controller('categories')
+@UseGuards(AtGuard, RolesGuard)
 @ApiBearerAuth()
 @Controller('budgets')
 export class BudgetController {
   constructor(private readonly budgetService: BudgetService) {}
 
+
   @Post()
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Create a new budget' })
   @ApiResponse({ 
     status: 201, 
